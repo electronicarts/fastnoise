@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="SImage.cpp" />
+    <ClCompile Include="fastnoise\private\dxutils.cpp">
+      <Filter>fastnoise\private</Filter>
+    </ClCompile>
+    <ClCompile Include="fastnoise\private\shadercompiler.cpp">
+      <Filter>fastnoise\private</Filter>
+    </ClCompile>
+    <ClCompile Include="fastnoise\private\technique.cpp">
+      <Filter>fastnoise\private</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="stb">
+      <UniqueIdentifier>{98b603b5-98bd-4e20-a990-b4139a9b8e0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="fastnoise">
+      <UniqueIdentifier>{74677614-04c4-41a4-b4ce-b346b9e01743}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="fastnoise\public">
+      <UniqueIdentifier>{bfa0ba36-0977-493d-99dd-e3a0a69de0db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="fastnoise\private">
+      <UniqueIdentifier>{e499894d-7927-4ea5-98be-83b8248222d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="fastnoise\shaders">
+      <UniqueIdentifier>{38c4a736-15a6-4cbb-86cd-b6eef0abe3e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scripts">
+      <UniqueIdentifier>{fdea1898-8ed3-4c6f-9863-db1eedfa29d1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DX12.h" />
+    <ClInclude Include="SImage.h" />
+    <ClInclude Include="SBuffer.h" />
+    <ClInclude Include="..\stb\stb_image.h">
+      <Filter>stb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\stb\stb_image_write.h">
+      <Filter>stb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastnoise\private\dxutils.h">
+      <Filter>fastnoise\private</Filter>
+    </ClInclude>
+    <ClInclude Include="fastnoise\private\shadercompiler.h">
+      <Filter>fastnoise\private</Filter>
+    </ClInclude>
+    <ClInclude Include="fastnoise\private\technique.h">
+      <Filter>fastnoise\private</Filter>
+    </ClInclude>
+    <ClInclude Include="fastnoise\public\technique.h">
+      <Filter>fastnoise\public</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="fastnoise\shaders\fastnoise.hlsl">
+      <Filter>fastnoise\shaders</Filter>
+    </None>
+    <None Include="fastnoise\shaders\init.hlsl">
+      <Filter>fastnoise\shaders</Filter>
+    </None>
+    <None Include="fastnoise\shaders\loss.hlsl">
+      <Filter>fastnoise\shaders</Filter>
+    </None>
+    <None Include="fastnoise\shaders\swap.hlsl">
+      <Filter>fastnoise\shaders</Filter>
+    </None>
+    <None Include="scripts\histogram.py">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\spectrum.py">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\temporal.py">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\temporal-plot.py">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\makenoise-temporal.py">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\makenoise-spatial.py">
+      <Filter>scripts</Filter>
+    </None>
+  </ItemGroup>
+</Project>
