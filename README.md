@@ -6,10 +6,6 @@ This noise is intended to be used in stochastic rendering techniques at the lowe
 
 For information about how to use these noise textures, and deciding which options are right for your situation, please see [FastNoiseDesign](FastNoiseDesign.md)
 
-## Build Status
-
-[![pipeline status](https://gitlab.ea.com/seed/fastnoise/badges/main/pipeline.svg)](https://gitlab.ea.com/seed/fastnoise/commits/main)
-
 ## Building & Running
 
 Building FastNoise.sln in visual studio 2022 will generate a FastNoise.exe file in the root folder of this repo.

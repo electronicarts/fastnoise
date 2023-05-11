@@ -16,6 +16,7 @@ Bonus: Extra Tricks
 <ol type="A">
   <li>More Samples Per Frame</li>
   <li>More Temporal Samples</li>
+  <li>Random Direction In Cone & Random Point On Disk</li>
   <li>Is Binomial Noise Better Than Blue Noise, Perceptually or Otherwise?</li>
 </ol>
 
@@ -94,7 +95,15 @@ One way to do this is to read at ((x + offsetx) % W, (y + offset) % H, sample % 
 
 A bijection could be used instead of an RNG, to make the offset visit all pixels before repeating, for better results.
 
-## C. Is Binomial Noise Better Than Blue Noise, Perceptually or Otherwise?
+## C. Random Direction In Cone & Random Point On Disk
+
+If you need a uniform random direction in a cone, one way to get this is to get a random point on a disk, and scale / translate the disk relative to the ray origin to make the specific cone you want.
+
+We don't have any "Random Point On Disk" noise, but If you recall, you can make cosine weighted hemispherical samples by making a random point on disk to make the x and y, and then making the z value be what is needed to make it a normalized vector3.  This works in reverse too.  You can take a cosine weighted hemispherical vector and throw out the z to get a uniform point on a disk, which you can then use to make a direction in a cone.
+
+So, for either of these cases, you can use the cosine weighted hemispherical noise textures, and only read the .xy from it, ignoring the .z.
+
+## D. Is Binomial Noise Better Than Blue Noise, Perceptually or Otherwise?
 
 While experimenting with different filters, we noticed that noise optimized for a 3x3 binomial filter would sometimes make what seemed to be better perceptual
 error renderings than sigma 1.0 gaussian optimized blue noise would make.  This can be seen below where the portion highlighted by the red arrow differs between the two.
