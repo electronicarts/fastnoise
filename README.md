@@ -4,7 +4,9 @@ FastNoise generates noise textures optimized towards specific spatial and tempor
 
 This noise is intended to be used in stochastic rendering techniques at the lowest of sample counts to reduce error under spatial and temporal filters, or reduce the perceieved error when not filtered.
 
-For information about how to use these noise textures, and deciding which options are right for your situation, please see [FastNoiseDesign](FastNoiseDesign.md)
+For information about how to use these noise textures, and deciding which options are right for your situation, please see [FastNoise Design and Usage](FastNoiseDesign.md)
+
+To see the various types of noises in frequency space, please see [Frequency Visualization of Common FAST Noise Types](DFTs.pdf)
 
 ## Building & Running
 
@@ -82,7 +84,28 @@ towards a loss function.  It runs compute shaders using DX12 to perform this wor
 
 ## Included Noise Textures
 
-We've included some commonly used types of noise textures in the `out` folder but these are not the only types of noise possible.
+We've included some commonly used types of noise textures in the noise.zip file but these are not the only types of noise possible.
 
- * `out/real/` - This contains scalar valued noise.  The temporal subfolder contains noise optimized for either gauss or exponential moving average (exp) over time and are meant to be used as flip books.
- * `out/sphere/` - This contains spherical and hemispherical valued noise.  The temporal subfolder again contains noise optimized to be used as a flip book over time.
+The first folder names describe the type of value in each pixel: gaussian (scalar), real (scalar), sphere, vector2 or vector 3.
+
+Within those folders are purely spatial noise, with various distributions of values (E.g. uniform vs cosine hemisphere weighted).
+
+Subfolders contain temporal noise that is either optimized for EMA over time (exp) or for a gaussian filter over time (gauss).
+
+Product noise multiplies the spatial and temporal filters together. Separate noise adds them.
+
+Please see [FastNoise Design and Usage](FastNoiseDesign.md) for more information about what type of noise to use under specific circumstances.
+
+## Authors
+
+<p align="center"><a href="https://seed.ea.com"><img src="logo/SEED.jpg" width="150px"></a><br>
+<b>Search for Extraordinary Experiences Division (SEED) - Electronic Arts <br> http://seed.ea.com</b><br>
+We are a cross-disciplinary team within EA Worldwide Studios.<br>
+Our mission is to explore, build and help define the future of interactive entertainment.</p>
+
+Code and paper by William Donnelly, Alan Wolfe, Judith Bütepage and Jon Valdés.
+
+## Contributing
+
+Before you can contribute, EA must have a Contributor License Agreement (CLA) on file that has been signed by each contributor.
+You can sign here: http://bit.ly/electronic-arts-cla
