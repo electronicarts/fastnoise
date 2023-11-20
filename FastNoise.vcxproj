@@ -47,10 +47,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)</OutDir>
+    <IncludePath>$(SolutionDir)tinyexr\deps\miniz\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)</OutDir>
+    <IncludePath>$(SolutionDir)tinyexr\deps\miniz\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -92,6 +94,7 @@
     <ClCompile Include="fastnoise\private\technique.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SImage.cpp" />
+    <ClCompile Include="tinyexr\deps\miniz\miniz.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\stb\stb_image.h" />
@@ -103,6 +106,8 @@
     <ClInclude Include="fastnoise\public\technique.h" />
     <ClInclude Include="SBuffer.h" />
     <ClInclude Include="SImage.h" />
+    <ClInclude Include="tinyexr\deps\miniz\miniz.h" />
+    <ClInclude Include="tinyexr\tinyexr.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="fastnoise\shaders\fastnoise.hlsl">
@@ -123,6 +128,9 @@
     <None Include="scripts\spectrum.py" />
     <None Include="scripts\temporal-plot.py" />
     <None Include="scripts\temporal.py" />
+    <None Include="tinyexr\deps\miniz\LICENSE" />
+    <None Include="tinyexr\deps\miniz\readme.md" />
+    <None Include="tinyexr\README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

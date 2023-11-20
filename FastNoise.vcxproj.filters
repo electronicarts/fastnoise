@@ -12,6 +12,9 @@
     <ClCompile Include="fastnoise\private\technique.cpp">
       <Filter>fastnoise\private</Filter>
     </ClCompile>
+    <ClCompile Include="tinyexr\deps\miniz\miniz.c">
+      <Filter>tinyexr\deps\miniz</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="stb">
@@ -31,6 +34,15 @@
     </Filter>
     <Filter Include="scripts">
       <UniqueIdentifier>{fdea1898-8ed3-4c6f-9863-db1eedfa29d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tinyexr">
+      <UniqueIdentifier>{b7983bef-154f-4b90-b8b1-5c21df925704}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tinyexr\deps">
+      <UniqueIdentifier>{6577169d-422d-4029-979c-31b7d1c7204b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tinyexr\deps\miniz">
+      <UniqueIdentifier>{3fee5743-053b-4447-b93c-7feb203a4862}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -54,6 +66,12 @@
     </ClInclude>
     <ClInclude Include="fastnoise\public\technique.h">
       <Filter>fastnoise\public</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyexr\tinyexr.h">
+      <Filter>tinyexr</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyexr\deps\miniz\miniz.h">
+      <Filter>tinyexr\deps\miniz</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -86,6 +104,15 @@
     </None>
     <None Include="scripts\makenoise-spatial.py">
       <Filter>scripts</Filter>
+    </None>
+    <None Include="tinyexr\README.md">
+      <Filter>tinyexr</Filter>
+    </None>
+    <None Include="tinyexr\deps\miniz\LICENSE">
+      <Filter>tinyexr\deps\miniz</Filter>
+    </None>
+    <None Include="tinyexr\deps\miniz\readme.md">
+      <Filter>tinyexr\deps\miniz</Filter>
     </None>
   </ItemGroup>
 </Project>

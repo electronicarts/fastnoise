@@ -25,7 +25,7 @@ scalar value.
 
 Running the executable with no parameters will give the following output:
 
-FastNoise.exe \<sampleSpace> \<distribution> \<filterXY> \<filterZ> \<filterCombine> \<textureSize> \<fileName> [-split]
+FastNoise.exe \<sampleSpace> \<distribution> \<filterXY> \<filterZ> \<filterCombine> \<textureSize> \<fileName> [-split] [-numsteps \<steps>] [-output \<type>]
 
   \<sampleSpace>  - The type of value stored in each pixel.
                      Real | Circle | Vector2 | Vector3 | Vector4 | Sphere
@@ -56,6 +56,8 @@ FastNoise.exe \<sampleSpace> \<distribution> \<filterXY> \<filterZ> \<filterComb
                     slices will be put together into a single image.
 
   -numsteps \<steps> - specify how many iterations of optimization to do. defualts to 10,000.
+
+  -output \<type>  - Force an output type.  type can be: exr, csv.
 
 Parameter Explanation:
 - Box size is diameter, so 3 gives you 3x3, 5 gives you 5x5 etc.

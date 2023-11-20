@@ -15,9 +15,17 @@
 #define DETERMINISTIC() false
 #define OUTPUT_INTERMEDIATE_IMAGES() false
 
+enum class OutputType
+{
+    Unspecified,
+    CSV,
+    EXR,
+};
+
 std::string g_outputFileName;
 bool g_outputLayersAsSingleImages = false;
 size_t g_numSteps = 10000;
+OutputType g_outputType = OutputType::Unspecified;
 
 static void LogFn(int level, const char* msg, ...)
 {
@@ -31,7 +39,7 @@ void PrintUsage()
 {
     printf(
         "\n"
-        "FastNoise.exe <sampleSpace> <distribution> <filterXY> <filterZ> <filterCombine> <textureSize> <fileName> [-split]\n"
+        "FastNoise.exe <sampleSpace> <distribution> <filterXY> <filterZ> <filterCombine> <textureSize> <fileName> [-split] [-numsteps <steps>] [-output <type>]\n"
         "\n"
         "  <sampleSpace>  - The type of value stored in each pixel.\n"
         "                     Real | Circle | Vector2 | Vector3 | Vector4 | Sphere\n"
@@ -62,6 +70,8 @@ void PrintUsage()
         "                    slices will be put together into a single image.\n"
         "\n"
         "  -numsteps <steps> - specify how many iterations of optimization to do. defualts to 10,000.\n"
+        "\n"
+        "  -output <type>  - Force an output type.  type can be: exr, csv.\n"
         "\n"
         "\n"
         "Parameter Explanation:\n"
@@ -384,6 +394,27 @@ bool ParseCommandLine(fastnoise::Context::ContextInput& settings, int argc, char
             {
                 g_numSteps = numSteps;
             }
+            else
+            {
+                printf("[Error] -numsteps is missing the number of steps\n");
+                return false;
+            }
+        }
+        else if (!_stricmp(argv[nextArg], "-output"))
+        {
+            nextArg++;
+            int numSteps = 0;
+
+            if (nextArg >= argc)
+            {
+                printf("[Error] -output is missing the type\n");
+                return false;
+            }
+
+            if (!_stricmp(argv[nextArg], "csv"))
+                g_outputType = OutputType::CSV;
+            else if (!_stricmp(argv[nextArg], "exr"))
+                g_outputType = OutputType::EXR;
             else
             {
                 printf("[Error] -numsteps is missing the number of steps\n");
@@ -764,6 +795,18 @@ int main(int argc, char** argv)
                 if (fastnoiseContext->m_input.variable_sampleDistribution == fastnoise::SampleDistribution::Gauss1D)
                 {
                     extension = "hdr";
+                    pixelConversion = SImage::PixelConversions::PixelsAreF32_SaveAsF32;
+                }
+
+                if (g_outputType == OutputType::EXR)
+                {
+                    extension = "exr";
+                    pixelConversion = SImage::PixelConversions::PixelsAreF32_SaveAsF32;
+                }
+
+                if (g_outputType == OutputType::CSV)
+                {
+                    extension = "csv";
                     pixelConversion = SImage::PixelConversions::PixelsAreF32_SaveAsF32;
                 }
 

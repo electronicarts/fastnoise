@@ -5,6 +5,9 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
+#define TINYEXR_IMPLEMENTATION
+#include "tinyexr/tinyexr.h"
+
 #include "SImage.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -12,6 +15,116 @@
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb/stb_image_write.h"
+
+static const char* GetFileExtension(const char* fileName)
+{
+    int index = (int)strlen(fileName);
+    while (index >= 0)
+    {
+        if (fileName[index] == '.')
+            return &fileName[index];
+        index--;
+    }
+    return nullptr;
+}
+
+static bool SaveCSV(const float* pixels, int width, int height, int numChannels, const char* outfilename)
+{
+    FILE* file = nullptr;
+    fopen_s(&file, outfilename, "wb");
+    if (!file)
+        return false;
+
+    const float* value = pixels;
+    for (int iy = 0; iy < height; ++iy)
+    {
+        for (int ix = 0; ix < width * numChannels; ++ix)
+        {
+            fprintf(file, "%s\"%f\"", ix > 0 ? "," : "", *value);
+            value++;
+        }
+        fprintf(file, "\n");
+    }
+
+    fclose(file);
+    return true;
+}
+
+static bool SaveEXR(const float* pixels, int width, int height, int numChannels, const char* outfilename)
+{
+    EXRHeader header;
+    InitEXRHeader(&header);
+
+    EXRImage image;
+    InitEXRImage(&image);
+
+    image.num_channels = numChannels;
+
+    std::vector<std::vector<float>> images;
+    images.resize(numChannels);
+    for (std::vector<float>& v : images)
+        v.resize(width * height);
+
+    // Split interleaved channels into separate channels
+    for (int i = 0; i < width * height; i++)
+    {
+        for (int j = 0; j < numChannels; ++j)
+            images[j][i] = pixels[numChannels * i + j];
+    }
+
+    // put the RGBA channels into ABGR because most EXR viewers expect this
+    std::vector<float*> image_ptr(numChannels);
+    for (int i = 0; i < numChannels; ++i)
+        image_ptr[i] = images[numChannels - i - 1].data();
+
+    image.images = (unsigned char**)image_ptr.data();
+    image.width = width;
+    image.height = height;
+
+    // Must be (A)BGR order, since most of EXR viewers expect this channel order.
+    const char* chanelNames[4] = { "R", "G", "B", "A" };
+    header.num_channels = numChannels;
+    header.channels = (EXRChannelInfo*)malloc(sizeof(EXRChannelInfo) * header.num_channels);
+    for (int i = 0; i < numChannels; ++i)
+    {
+        char buffer[256];
+        const char* channelName;
+        if (i < 4)
+        {
+            channelName = chanelNames[numChannels - i - 1];
+        }
+        else
+        {
+            sprintf(buffer, "X%i", i - 4);
+            channelName = buffer;
+        }
+        strncpy(header.channels[i].name, channelName, 255); header.channels[0].name[strlen(channelName)] = '\0';
+    }
+
+    header.pixel_types = (int*)malloc(sizeof(int) * header.num_channels);
+    header.requested_pixel_types = (int*)malloc(sizeof(int) * header.num_channels);
+    for (int i = 0; i < header.num_channels; i++) {
+        header.pixel_types[i] = TINYEXR_PIXELTYPE_FLOAT; // pixel type of input image
+        header.requested_pixel_types[i] = TINYEXR_PIXELTYPE_FLOAT;// TINYEXR_PIXELTYPE_HALF; // pixel type of output image to be stored in .EXR
+    }
+
+    const char* err = NULL; // or nullptr in C++11 or later.
+    int ret = SaveEXRImageToFile(&image, &header, outfilename, &err);
+    if (ret != TINYEXR_SUCCESS) {
+        //fprintf(stderr, "Save EXR err: %s\n", err);
+        FreeEXRErrorMessage(err); // free's buffer for an error message
+        return ret;
+    }
+    //printf("Saved exr file. [ %s ] \n", outfilename);
+
+    //free(pixels);
+
+    free(header.channels);
+    free(header.pixel_types);
+    free(header.requested_pixel_types);
+
+    return true;
+}
 
 SImage::~SImage()
 {
@@ -108,7 +221,7 @@ bool SImage::Save(const char* fileName, PixelConversions pixelConversion)
             const float* src = (const float*)m_pixels.data();
             unsigned char* dest = m_F23ToU8pixels.data();
             for (size_t index = 0; index < count; ++index)
-                dest[index] = (unsigned char)max(min(src[index] * 256.0f, 255.0f), 0.0f);
+                dest[index] = (unsigned char)std::max(std::min(src[index] * 256.0f, 255.0f), 0.0f);
 
             return stbi_write_png(fileName, m_width, m_height, m_components, m_F23ToU8pixels.data(), 0) == 1;
         }
@@ -118,7 +231,13 @@ bool SImage::Save(const char* fileName, PixelConversions pixelConversion)
         }
         case PixelConversions::PixelsAreF32_SaveAsF32:
         {
-            return stbi_write_hdr(fileName, m_width, m_height, m_components, (float*)m_pixels.data()) == 1;
+            const char* extension = GetFileExtension(fileName);
+            if (!_stricmp(extension, ".exr"))
+                return SaveEXR((float*)m_pixels.data(), m_width, m_height, m_components, fileName);
+            else if (!_stricmp(extension, ".csv"))
+                return SaveCSV((float*)m_pixels.data(), m_width, m_height, m_components, fileName);
+            else
+                return stbi_write_hdr(fileName, m_width, m_height, m_components, (float*)m_pixels.data()) == 1;
         }
     }
 
@@ -146,7 +265,7 @@ bool SImage::SaveRegion(const char* fileName, int x1, int x2, int y1, int y2, Pi
                 const float* src = (const float*)&m_pixels[((iy + y1) * m_width + x1) * m_components * sizeof(float)];
                 for (int ix = 0; ix < regionSize[0] * m_components; ++ix)
                 {
-                    *dest = (unsigned char)max(min(*src * 256.0f, 255.0f), 0.0f);
+                    *dest = (unsigned char)std::max(std::min(*src * 256.0f, 255.0f), 0.0f);
                     src++;
                     dest++;
                 }
@@ -184,7 +303,13 @@ bool SImage::SaveRegion(const char* fileName, int x1, int x2, int y1, int y2, Pi
                 }
             }
 
-            return stbi_write_hdr(fileName, regionSize[0], regionSize[1], m_components, outPixels.data()) == 1;
+            const char* extension = GetFileExtension(fileName);
+            if (!_stricmp(extension, ".exr"))
+                return SaveEXR(outPixels.data(), regionSize[0], regionSize[1], m_components, fileName);
+            else if(!_stricmp(extension, ".csv"))
+                return SaveCSV(outPixels.data(), regionSize[0], regionSize[1], m_components, fileName);
+            else
+                return stbi_write_hdr(fileName, regionSize[0], regionSize[1], m_components, outPixels.data()) == 1;
         }
     }
 
