@@ -98,6 +98,12 @@ Product noise multiplies the spatial and temporal filters together. Separate noi
 
 Please see [FastNoise Design and Usage](FastNoiseDesign.md) for more information about what type of noise to use under specific circumstances.
 
+## Resources
+
+[Arxiv: Filter-adapted spatiotemporal sampling for real-time rendering](https://arxiv.org/abs/2310.15364)
+
+Our work will appear at i3D 20204. Links will be added when available!
+
 ## Authors
 
 <p align="center"><a href="https://seed.ea.com"><img src="logo/SEED.jpg" width="150px"></a><br>
