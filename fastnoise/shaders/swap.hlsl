@@ -45,18 +45,18 @@ struct Struct_DataStruct
 struct Struct__SwapCB
 {
     uint Iteration;
-    float3 _padding0;
+    uint3 TextureSize;
     uint4 key;
     uint scrambleBits;
-    uint3 TextureSize;
     uint swapSuppression;
+    float2 _padding0;
 };
 
 Texture3D<float> LossTexture : register(t0);
 RWTexture3D<float4> SampleTexture : register(u0);
 RWTexture3D<float4> SwapDebug : register(u1);
 RWStructuredBuffer<Struct_DataStruct> Data : register(u2);
-ConstantBuffer<Struct__SwapCB> _cb : register(b0);
+ConstantBuffer<Struct__SwapCB> _SwapCB : register(b0);
 
 
 #include "fastnoise.hlsl"
@@ -66,12 +66,12 @@ void Swap(uint3 DTid : SV_DispatchThreadID)
 {
 	// 1. Total loss for the swap is sum of loss texture at source and destination
 	uint3 index = DTid;
-	uint3 otherIndex = getOtherIndex(index, _cb.key, _cb.scrambleBits);
+	uint3 otherIndex = getOtherIndex(index, _SwapCB.key, _SwapCB.scrambleBits);
 
 	float loss = LossTexture[index] + LossTexture[otherIndex];
 
 	// 2. Only one out of each pair does the swap, so check if we have the lower index
-	int3 textureSize = _cb.TextureSize;
+	int3 textureSize = _SwapCB.TextureSize;
 	uint3 flatten = uint3(textureSize.y * textureSize.z, textureSize.z, 1);
 	bool lesser = dot(flatten, index) < dot(flatten, otherIndex);
 
@@ -79,10 +79,10 @@ void Swap(uint3 DTid : SV_DispatchThreadID)
 	// TODO: We should adjust this based on the number of swaps - if it's above a threshold, then don't execute the swap
 
 
-	uint iteration = _cb.Iteration;
+	uint iteration = _SwapCB.Iteration;
 	uint randomSeed = wang_hash_init(DTid + iteration);
 	uint randomValue = wang_hash_uint(randomSeed);
-	uint swapSuppression = _cb.swapSuppression;
+	uint swapSuppression = _SwapCB.swapSuppression;
 	bool swapCheck = (randomValue % swapSuppression) == 0;
 
 	if (lesser && loss < 0 && swapCheck)

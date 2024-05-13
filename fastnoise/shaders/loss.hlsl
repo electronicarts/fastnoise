@@ -37,24 +37,25 @@ struct SampleDistribution
 
 struct Struct__LossCB
 {
-    int sampleSpace;
-    float separateWeight;
-    uint separate;
-    float _padding0;
-    uint4 key;
-    uint scrambleBits;
     uint3 TextureSize;
-    int3 filterMin;
-    float _padding1;
+    float _padding0;
     int3 filterMax;
+    float _padding1;
+    int3 filterMin;
     float _padding2;
     int3 filterOffset;
+    float _padding3;
+    uint4 key;
+    int sampleSpace;
+    uint scrambleBits;
+    uint separate;
+    float separateWeight;
 };
 
 RWTexture3D<float> LossTexture : register(u0);
 Buffer<float> Filter : register(t0);
 Texture3D<float4> SampleTexture : register(t1);
-ConstantBuffer<Struct__LossCB> _cb : register(b0);
+ConstantBuffer<Struct__LossCB> _LossCB : register(b0);
 
 
 #include "fastnoise.hlsl"
@@ -63,27 +64,27 @@ ConstantBuffer<Struct__LossCB> _cb : register(b0);
 float K2(float4 x, float4 y)
 {
 	float K = 0.0f;
-	if (_cb.sampleSpace == SampleSpace::Real)
+	if (_LossCB.sampleSpace == SampleSpace::Real)
 	{
 		K = -abs(x.x - y.x);
 	}
-	else if (_cb.sampleSpace == SampleSpace::Circle)
+	else if (_LossCB.sampleSpace == SampleSpace::Circle)
 	{
 		K = -min(abs(x.x - y.x), min(abs(x.x - y.x + 1.0f), abs(x.x - y.x - 1.0f)));
 	}
-	else if (_cb.sampleSpace == SampleSpace::Vector2)
+	else if (_LossCB.sampleSpace == SampleSpace::Vector2)
 	{
 		K = -length(x.xy - y.xy);
 	}
-	else if (_cb.sampleSpace == SampleSpace::Vector3)
+	else if (_LossCB.sampleSpace == SampleSpace::Vector3)
 	{
 		K = -length(x.xyz - y.xyz);
 	}
-	else if (_cb.sampleSpace == SampleSpace::Vector4)
+	else if (_LossCB.sampleSpace == SampleSpace::Vector4)
 	{
 		K = -length(x - y);
 	}
-	else if (_cb.sampleSpace == SampleSpace::Sphere)
+	else if (_LossCB.sampleSpace == SampleSpace::Sphere)
 	{
 		K = -acos(saturate(dot(2*x.xyz-1, 2*y.xyz-1)));
 	}
@@ -94,15 +95,15 @@ float K2(float4 x, float4 y)
 float combineFilter(int3 index, float filterX, float filterY, float filterZ)
 {
 	float F = 0.0f;
-	if (_cb.separate)
+	if (_LossCB.separate)
 	{
 		if (index.z == 0)
 		{
-			F += filterX * filterY* _cb.separateWeight;
+			F += filterX * filterY* _LossCB.separateWeight;
 		}
 		if (index.x == 0 && index.y == 0)
 		{
-			F += filterZ* (1.0f - _cb.separateWeight);
+			F += filterZ* (1.0f - _LossCB.separateWeight);
 		}
 	}
 	else 
@@ -137,14 +138,14 @@ void Loss(uint3 DTid : SV_DispatchThreadID)
 	int3 index = DTid;
 	float4 currentValue = SampleTexture[index];
 
-	int3 otherIndex = getOtherIndex(index, _cb.key, _cb.scrambleBits);
+	int3 otherIndex = getOtherIndex(index, _LossCB.key, _LossCB.scrambleBits);
 	float4 otherValue = SampleTexture[otherIndex];
 
-	uint3 textureSize = _cb.TextureSize;
+	uint3 textureSize = _LossCB.TextureSize;
 
-	int3 filterMin = _cb.filterMin;
-	int3 filterMax = _cb.filterMax;
-	int3 filterOffset = _cb.filterOffset;
+	int3 filterMin = _LossCB.filterMin;
+	int3 filterMax = _LossCB.filterMax;
+	int3 filterOffset = _LossCB.filterOffset;
 
 	float deltaLoss = 0.0f;
 

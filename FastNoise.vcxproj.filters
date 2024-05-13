@@ -3,23 +3,29 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SImage.cpp" />
-    <ClCompile Include="fastnoise\private\dxutils.cpp">
-      <Filter>fastnoise\private</Filter>
-    </ClCompile>
-    <ClCompile Include="fastnoise\private\shadercompiler.cpp">
-      <Filter>fastnoise\private</Filter>
-    </ClCompile>
     <ClCompile Include="fastnoise\private\technique.cpp">
       <Filter>fastnoise\private</Filter>
     </ClCompile>
-    <ClCompile Include="tinyexr\deps\miniz\miniz.c">
-      <Filter>tinyexr\deps\miniz</Filter>
+    <ClCompile Include="fastnoise\DX12Utils\FileCache.cpp">
+      <Filter>fastnoise\DX12Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="fastnoise\DX12Utils\shadercompiler_dxc.cpp">
+      <Filter>fastnoise\DX12Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="fastnoise\DX12Utils\shadercompiler_fxc.cpp">
+      <Filter>fastnoise\DX12Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="fastnoise\DX12Utils\TextureCache.cpp">
+      <Filter>fastnoise\DX12Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="fastnoise\DX12Utils\dxutils.cpp">
+      <Filter>fastnoise\DX12Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="fastnoise\DX12Utils\tinyexr\deps\miniz\miniz.c">
+      <Filter>fastnoise\DX12Utils\tinyexr\deps\miniz</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="stb">
-      <UniqueIdentifier>{98b603b5-98bd-4e20-a990-b4139a9b8e0b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="fastnoise">
       <UniqueIdentifier>{74677614-04c4-41a4-b4ce-b346b9e01743}</UniqueIdentifier>
     </Filter>
@@ -35,58 +41,85 @@
     <Filter Include="scripts">
       <UniqueIdentifier>{fdea1898-8ed3-4c6f-9863-db1eedfa29d1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="tinyexr">
-      <UniqueIdentifier>{b7983bef-154f-4b90-b8b1-5c21df925704}</UniqueIdentifier>
+    <Filter Include="fastnoise\DX12Utils">
+      <UniqueIdentifier>{10a4a3f5-70d6-4bae-af5b-175ed907658c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="tinyexr\deps">
-      <UniqueIdentifier>{6577169d-422d-4029-979c-31b7d1c7204b}</UniqueIdentifier>
+    <Filter Include="fastnoise\DX12Utils\stb">
+      <UniqueIdentifier>{b1945e3f-4e71-4611-a973-62c49ad225cd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="tinyexr\deps\miniz">
-      <UniqueIdentifier>{3fee5743-053b-4447-b93c-7feb203a4862}</UniqueIdentifier>
+    <Filter Include="fastnoise\DX12Utils\tinyexr">
+      <UniqueIdentifier>{b835e63c-93b9-4180-a843-034b9bee126b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="fastnoise\DX12Utils\tinyexr\deps">
+      <UniqueIdentifier>{ca1a69ec-73d7-493a-80f1-bc4b62b0b0f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="fastnoise\DX12Utils\tinyexr\deps\miniz">
+      <UniqueIdentifier>{db73e9ca-6d9c-4c4d-ae58-8320ef553c03}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DX12.h" />
     <ClInclude Include="SImage.h" />
     <ClInclude Include="SBuffer.h" />
-    <ClInclude Include="..\stb\stb_image.h">
-      <Filter>stb</Filter>
+    <ClInclude Include="fastnoise\public\all.h">
+      <Filter>fastnoise\public</Filter>
     </ClInclude>
-    <ClInclude Include="..\stb\stb_image_write.h">
-      <Filter>stb</Filter>
+    <ClInclude Include="fastnoise\public\imgui.h">
+      <Filter>fastnoise\public</Filter>
     </ClInclude>
-    <ClInclude Include="fastnoise\private\dxutils.h">
-      <Filter>fastnoise\private</Filter>
-    </ClInclude>
-    <ClInclude Include="fastnoise\private\shadercompiler.h">
-      <Filter>fastnoise\private</Filter>
-    </ClInclude>
-    <ClInclude Include="fastnoise\private\technique.h">
-      <Filter>fastnoise\private</Filter>
+    <ClInclude Include="fastnoise\public\pythoninterface.h">
+      <Filter>fastnoise\public</Filter>
     </ClInclude>
     <ClInclude Include="fastnoise\public\technique.h">
       <Filter>fastnoise\public</Filter>
     </ClInclude>
-    <ClInclude Include="tinyexr\tinyexr.h">
-      <Filter>tinyexr</Filter>
+    <ClInclude Include="fastnoise\private\technique.h">
+      <Filter>fastnoise\private</Filter>
     </ClInclude>
-    <ClInclude Include="tinyexr\deps\miniz\miniz.h">
-      <Filter>tinyexr\deps\miniz</Filter>
+    <ClInclude Include="fastnoise\DX12Utils\FileCache.h">
+      <Filter>fastnoise\DX12Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="fastnoise\DX12Utils\HeapAllocationTracker.h">
+      <Filter>fastnoise\DX12Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="fastnoise\DX12Utils\logfn.h">
+      <Filter>fastnoise\DX12Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="fastnoise\DX12Utils\ParseCSV.h">
+      <Filter>fastnoise\DX12Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="fastnoise\DX12Utils\ReadbackHelper.h">
+      <Filter>fastnoise\DX12Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="fastnoise\DX12Utils\shadercompiler.h">
+      <Filter>fastnoise\DX12Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="fastnoise\DX12Utils\SRGB.h">
+      <Filter>fastnoise\DX12Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="fastnoise\DX12Utils\TextureCache.h">
+      <Filter>fastnoise\DX12Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="fastnoise\DX12Utils\DelayedReleaseTracker.h">
+      <Filter>fastnoise\DX12Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="fastnoise\DX12Utils\dxutils.h">
+      <Filter>fastnoise\DX12Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="fastnoise\DX12Utils\stb\stb_image.h">
+      <Filter>fastnoise\DX12Utils\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastnoise\DX12Utils\stb\stb_image_write.h">
+      <Filter>fastnoise\DX12Utils\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastnoise\DX12Utils\tinyexr\tinyexr.h">
+      <Filter>fastnoise\DX12Utils\tinyexr</Filter>
+    </ClInclude>
+    <ClInclude Include="fastnoise\DX12Utils\tinyexr\deps\miniz\miniz.h">
+      <Filter>fastnoise\DX12Utils\tinyexr\deps\miniz</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="fastnoise\shaders\fastnoise.hlsl">
-      <Filter>fastnoise\shaders</Filter>
-    </None>
-    <None Include="fastnoise\shaders\init.hlsl">
-      <Filter>fastnoise\shaders</Filter>
-    </None>
-    <None Include="fastnoise\shaders\loss.hlsl">
-      <Filter>fastnoise\shaders</Filter>
-    </None>
-    <None Include="fastnoise\shaders\swap.hlsl">
-      <Filter>fastnoise\shaders</Filter>
-    </None>
     <None Include="scripts\histogram.py">
       <Filter>scripts</Filter>
     </None>
@@ -105,14 +138,17 @@
     <None Include="scripts\makenoise-spatial.py">
       <Filter>scripts</Filter>
     </None>
-    <None Include="tinyexr\README.md">
-      <Filter>tinyexr</Filter>
+    <None Include="fastnoise\shaders\fastnoise.hlsl">
+      <Filter>fastnoise\shaders</Filter>
     </None>
-    <None Include="tinyexr\deps\miniz\LICENSE">
-      <Filter>tinyexr\deps\miniz</Filter>
+    <None Include="fastnoise\shaders\init.hlsl">
+      <Filter>fastnoise\shaders</Filter>
     </None>
-    <None Include="tinyexr\deps\miniz\readme.md">
-      <Filter>tinyexr\deps\miniz</Filter>
+    <None Include="fastnoise\shaders\loss.hlsl">
+      <Filter>fastnoise\shaders</Filter>
+    </None>
+    <None Include="fastnoise\shaders\swap.hlsl">
+      <Filter>fastnoise\shaders</Filter>
     </None>
   </ItemGroup>
 </Project>

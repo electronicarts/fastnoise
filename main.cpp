@@ -3,6 +3,8 @@
 //         Copyright (c) 2023 Electronic Arts Inc. All rights reserved.      //
 ///////////////////////////////////////////////////////////////////////////////
 
+#define _SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING
+#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 #define NOMINMAX
 #include "DX12.h"
 #include "SImage.h"
@@ -12,8 +14,15 @@
 
 #include "fastnoise/public/technique.h"
 
-#define DETERMINISTIC() false
 #define OUTPUT_INTERMEDIATE_IMAGES() false
+
+enum ErrorCodes : int
+{
+    OK = 0,
+    FilterTruncation,
+    InitFileNoOpen,
+    InitFileWrongSize
+};
 
 enum class OutputType
 {
@@ -25,9 +34,12 @@ enum class OutputType
 std::string g_outputFileName;
 bool g_outputLayersAsSingleImages = false;
 size_t g_numSteps = 10000;
+unsigned int g_seed = 0;
+const char* g_initFile = nullptr;
+
 OutputType g_outputType = OutputType::Unspecified;
 
-static void LogFn(int level, const char* msg, ...)
+static void LogFn(LogLevel level, const char* msg, ...)
 {
     va_list args;
     va_start(args, msg);
@@ -39,7 +51,7 @@ void PrintUsage()
 {
     printf(
         "\n"
-        "FastNoise.exe <sampleSpace> <distribution> <filterXY> <filterZ> <filterCombine> <textureSize> <fileName> [-split] [-numsteps <steps>] [-output <type>]\n"
+        "FastNoise.exe <sampleSpace> <distribution> <filterXY> <filterZ> <filterCombine> <textureSize> <fileName> [options]\n"
         "\n"
         "  <sampleSpace>  - The type of value stored in each pixel.\n"
         "                     Real | Circle | Vector2 | Vector3 | Vector4 | Sphere\n"
@@ -66,13 +78,19 @@ void PrintUsage()
         "\n"
         "  <fileName>      - The path and filename to output, without a file extension.\n"
         "\n"
-        "  -split          - If specified, each slice will be output as a separate image, else, all\n"
-        "                    slices will be put together into a single image.\n"
+        "Options:\n"
         "\n"
-        "  -numsteps <steps> - specify how many iterations of optimization to do. defualts to 10,000.\n"
+        "  -split            - If specified, each slice will be output as a separate image, else, all\n"
+        "                      slices will be put together into a single image.\n"
         "\n"
-        "  -output <type>  - Force an output type.  type can be: exr, csv.\n"
+        "  -numsteps <steps> - specify how many iterations of optimization to do. defaults to 10,000.\n"
         "\n"
+        "  -output <type>    - Force an output type.  type can be: exr, csv.\n"
+        "\n"
+        "  -seed <value>     - Force the random seed value. Makes process deterministic.\n"
+        "\n"
+        "  -init <filename>  - Load data for initial state instead of init.hlsl generating it. Binary\n"
+        "                      file must contain textureSize.x*textureSize.y*textureSize.z*4 floats.\n"
         "\n"
         "Parameter Explanation:\n"
         "- Box size is diameter, so 3 gives you 3x3, 5 gives you 5x5 etc.\n"
@@ -379,12 +397,41 @@ bool ParseCommandLine(fastnoise::Context::ContextInput& settings, int argc, char
     // optional parameters
     while (nextArg < argc)
     {
-
         // split
         if (!_stricmp(argv[nextArg], "-split"))
         {
             g_outputLayersAsSingleImages = true;
             nextArg++;
+        }
+        else if (!_stricmp(argv[nextArg], "-init"))
+        {
+            nextArg++;
+            if (nextArg < argc)
+            {
+                g_initFile = argv[nextArg];
+                settings.variable_InitFromBuffer = true;
+                nextArg++;
+            }
+            else
+            {
+                printf("[Error] -init is missing the filename argument\n");
+                return false;
+            }
+        }
+        else if (!_stricmp(argv[nextArg], "-seed"))
+        {
+            nextArg++;
+            unsigned int value = 0;
+            if (nextArg < argc && sscanf_s(argv[nextArg], "%u", &value) == 1)
+            {
+                g_seed = value;
+                nextArg++;
+            }
+            else
+            {
+                printf("[Error] -seed is missing the value argument\n");
+                return false;
+            }
         }
         else if (!_stricmp(argv[nextArg], "-numsteps"))
         {
@@ -393,6 +440,7 @@ bool ParseCommandLine(fastnoise::Context::ContextInput& settings, int argc, char
             if (nextArg < argc && sscanf_s(argv[nextArg], "%i", &numSteps) == 1)
             {
                 g_numSteps = numSteps;
+                nextArg++;
             }
             else
             {
@@ -420,6 +468,7 @@ bool ParseCommandLine(fastnoise::Context::ContextInput& settings, int argc, char
                 printf("[Error] -numsteps is missing the number of steps\n");
                 return false;
             }
+            nextArg++;
         }
         else
         {
@@ -430,16 +479,18 @@ bool ParseCommandLine(fastnoise::Context::ContextInput& settings, int argc, char
     return true;
 }
 
+inline void StringReplaceAll(std::string& str, const std::string& from, const std::string& to) {
+    if (from.empty())
+        return;
+    size_t start_pos = 0;
+    while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length();
+    }
+}
+
 int main(int argc, char** argv)
 {
-    #if DETERMINISTIC()
-    std::mt19937 rng;
-    #else
-    std::random_device rd;
-    std::mt19937 rng(rd());
-    #endif
-    std::uniform_int_distribution<unsigned int> dist(0);
-
     // initialize directx
     DX12 dx12;
 
@@ -454,6 +505,12 @@ int main(int argc, char** argv)
         fastnoiseContext->m_profile = false;
     }
 
+    // Set a random seed. This can be overridden by the "-seed" command line parameter.
+    {
+        std::random_device rd;
+        g_seed = rd();
+    }
+
     // read the command line
     if (!ParseCommandLine(fastnoiseContext->m_input, argc, argv))
     {
@@ -461,11 +518,65 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    // Initialize RNG
+    std::mt19937 rng(g_seed);
+    std::uniform_int_distribution<unsigned int> dist(0);
+
+    StringReplaceAll(g_outputFileName, "%", "_");
+    printf("%s...\n", g_outputFileName.c_str());
+
     // random seed
     fastnoiseContext->m_input.variable_rngSeed = dist(rng);
     fastnoiseContext->m_input.variable_scrambleBits = (unsigned int)std::min(std::log2(float(fastnoiseContext->m_input.variable_TextureSize[0])), std::log2(float(fastnoiseContext->m_input.variable_TextureSize[0])));
 
     fastnoiseContext->m_input.variable_swapSuppression = 8;
+
+    // Load initialization buffer, or create a dummy one if none specified
+    SBuffer<float> initBuffer;
+    std::vector<float> initData;
+    {
+        if (g_initFile != nullptr)
+        {
+            // open the file if we can
+            FILE* file = nullptr;
+            fopen_s(&file, g_initFile, "rb");
+            if (!file)
+            {
+                printf("[Error] Could not open init file for reading \"%s\".\n", g_initFile);
+                return ErrorCodes::InitFileNoOpen;
+            }
+
+            // load the file data into memory and close it
+            std::vector<unsigned char> fileData;
+            fseek(file, 0, SEEK_END);
+            fileData.resize(ftell(file));
+            fseek(file, 0, SEEK_SET);
+            fread(fileData.data(), fileData.size(), 1, file);
+            fclose(file);
+
+            size_t desiredPixelCount = fastnoiseContext->m_input.variable_TextureSize[0] * fastnoiseContext->m_input.variable_TextureSize[1] * fastnoiseContext->m_input.variable_TextureSize[2];
+            size_t desiredByteCount = desiredPixelCount * sizeof(float) * 4;
+
+            if (fileData.size() != desiredByteCount)
+            {
+                printf("[Error] init file was wrong size: %zu bytes instead of %zu bytes.\n", fileData.size(), desiredByteCount);
+                return ErrorCodes::InitFileWrongSize;
+            }
+
+            initData.resize(desiredPixelCount * 4);
+            memcpy(initData.data(), fileData.data(), desiredByteCount);
+        }
+        else
+        {
+            // Dummy buffer data. It won't be used, but still needs to exist.
+            initData.push_back(0.0f);
+            initData.push_back(0.0f);
+            initData.push_back(0.0f);
+            initData.push_back(0.0f);
+        }
+
+        initBuffer.Load(dx12.m_device, &initData[0], initData.size(), "Init Buffer");
+    }
 
     // 
     SBuffer<float> filterBuffer;
@@ -648,7 +759,7 @@ int main(int argc, char** argv)
             if ((int)fastnoiseContext->m_input.variable_TextureSize[c] < 1 + fastnoiseContext->m_input.variable_filterMax[c] - fastnoiseContext->m_input.variable_filterMin[c])
             {
                 printf("[Error] Filter Truncation: filter on axis %i is of size %i, but the texture is only %i.\n", c, 1 + fastnoiseContext->m_input.variable_filterMax[c] - fastnoiseContext->m_input.variable_filterMin[c], (int)fastnoiseContext->m_input.variable_TextureSize[c]);
-                return 1;
+                return ErrorCodes::FilterTruncation;
             }
         }
     }
@@ -688,14 +799,20 @@ int main(int argc, char** argv)
 
                     if (step == 0)
                     {
+                        initBuffer.UploadDataToGPU(device, cmdList);
                         filterBuffer.UploadDataToGPU(device, cmdList);
+
+                        fastnoiseContext->m_input.buffer_InitBuffer = initBuffer.m_resource;
+                        fastnoiseContext->m_input.buffer_InitBuffer_stride = 0;
+                        fastnoiseContext->m_input.buffer_InitBuffer_format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+                        fastnoiseContext->m_input.buffer_InitBuffer_count = (unsigned int)initBuffer.m_data.size() / 4;
+                        fastnoiseContext->m_input.buffer_InitBuffer_state = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
 
                         fastnoiseContext->m_input.buffer_Filter = filterBuffer.m_resource;
                         fastnoiseContext->m_input.buffer_Filter_stride = 0;
                         fastnoiseContext->m_input.buffer_Filter_format = DXGI_FORMAT_R32_FLOAT;
                         fastnoiseContext->m_input.buffer_Filter_count = (unsigned int)filterBuffer.m_data.size();
                         fastnoiseContext->m_input.buffer_Filter_state = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-
                     }
 
                     fastnoise::Execute(fastnoiseContext, device, cmdList);

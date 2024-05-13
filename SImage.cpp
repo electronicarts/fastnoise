@@ -3,18 +3,18 @@
 //         Copyright (c) 2023 Electronic Arts Inc. All rights reserved.      //
 ///////////////////////////////////////////////////////////////////////////////
 
+#define NOMINMAX
 #define _CRT_SECURE_NO_WARNINGS
+#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 
-#define TINYEXR_IMPLEMENTATION
-#include "tinyexr/tinyexr.h"
+#include "fastnoise/DX12Utils/tinyexr/tinyexr.h"
 
 #include "SImage.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb/stb_image.h"
+#include "fastnoise/DX12Utils/stb/stb_image.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb/stb_image_write.h"
+#include "fastnoise/DX12Utils/stb/stb_image_write.h"
 
 static const char* GetFileExtension(const char* fileName)
 {
