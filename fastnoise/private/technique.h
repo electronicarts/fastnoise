@@ -7,6 +7,7 @@
 
 #include <d3d12.h>
 #include <array>
+#include <vector>
 
 namespace fastnoise
 {
@@ -108,37 +109,41 @@ namespace fastnoise
 
         struct Struct__InitCB
         {
-            uint4 key = {0,0,0,0};  // Used for generating random permutations
+            unsigned int InitFromBuffer = false;
             uint Iteration = 0;  // The current iteration
-            uint scrambleBits = 0;  // Number of bits to use in randomization
+            float2 _padding0 = {};  // Padding
+            uint4 key = {0,0,0,0};  // Used for generating random permutations
             uint rngSeed = 1338;  // Used during texture initialization
             int sampleDistribution = (int)SampleDistribution::Uniform1D;
+            uint scrambleBits = 0;  // Number of bits to use in randomization
+            float _padding1 = 0.0f;  // Padding
         };
 
         struct Struct__LossCB
         {
-            int sampleSpace = (int)SampleSpace::Real;
-            float separateWeight = 0.5;  // If "separate" is true, the weight for blending between temporal and spatial filter
-            unsigned int separate = false;  // Whether to use "separate" mode, which makes STBN-style samples
-            float _padding0 = 0.0f;  // Padding
-            uint4 key = {0,0,0,0};  // Used for generating random permutations
-            uint scrambleBits = 0;  // Number of bits to use in randomization
             uint3 TextureSize = {{64, 64, 1}};  // The size of the output texture
-            int3 filterMin = {{0,0,0}};  // Minimum range of the filter in each dimension
-            float _padding1 = 0.0f;  // Padding
+            float _padding0 = 0.0f;  // Padding
             int3 filterMax = {{0,0,0}};  // Maximum range of the filter in each dimension
+            float _padding1 = 0.0f;  // Padding
+            int3 filterMin = {{0,0,0}};  // Minimum range of the filter in each dimension
             float _padding2 = 0.0f;  // Padding
             int3 filterOffset = {{0,0,0}};  // Offset into the filter buffer
+            float _padding3 = 0.0f;  // Padding
+            uint4 key = {0,0,0,0};  // Used for generating random permutations
+            int sampleSpace = (int)SampleSpace::Real;
+            uint scrambleBits = 0;  // Number of bits to use in randomization
+            unsigned int separate = false;  // Whether to use "separate" mode, which makes STBN-style samples
+            float separateWeight = 0.5;  // If "separate" is true, the weight for blending between temporal and spatial filter
         };
 
         struct Struct__SwapCB
         {
             uint Iteration = 0;  // The current iteration
-            float3 _padding0 = {};  // Padding
+            uint3 TextureSize = {{64, 64, 1}};  // The size of the output texture
             uint4 key = {0,0,0,0};  // Used for generating random permutations
             uint scrambleBits = 0;  // Number of bits to use in randomization
-            uint3 TextureSize = {{64, 64, 1}};  // The size of the output texture
             uint swapSuppression = 64;
+            float2 _padding0 = {};  // Padding
         };
 
         // For storing values of the loss function
@@ -165,5 +170,11 @@ namespace fastnoise
 
         static ID3D12PipelineState* computeShader_Swap_pso;
         static ID3D12RootSignature* computeShader_Swap_rootSig;
+
+        // Freed on destruction of the context
+        std::vector<ID3D12Resource*> m_managedResources;
+
+        std::vector<int> m_managedRTVs;
+        std::vector<int> m_managedDSVs;
     };
 };

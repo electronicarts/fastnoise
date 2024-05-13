@@ -47,12 +47,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)</OutDir>
-    <IncludePath>$(SolutionDir)tinyexr\deps\miniz\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)fastnoise\DX12Utils\tinyexr\deps\miniz\;$(SolutionDir)fastnoise\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)</OutDir>
-    <IncludePath>$(SolutionDir)tinyexr\deps\miniz\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)fastnoise\DX12Utils\tinyexr\deps\miniz\;$(SolutionDir)fastnoise\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -61,6 +61,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -78,6 +79,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -89,48 +91,69 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="fastnoise\private\dxutils.cpp" />
-    <ClCompile Include="fastnoise\private\shadercompiler.cpp" />
+    <ClCompile Include="fastnoise\DX12Utils\dxutils.cpp" />
+    <ClCompile Include="fastnoise\DX12Utils\FileCache.cpp" />
+    <ClCompile Include="fastnoise\DX12Utils\shadercompiler_dxc.cpp" />
+    <ClCompile Include="fastnoise\DX12Utils\shadercompiler_fxc.cpp" />
+    <ClCompile Include="fastnoise\DX12Utils\TextureCache.cpp" />
+    <ClCompile Include="fastnoise\DX12Utils\tinyexr\deps\miniz\miniz.c" />
     <ClCompile Include="fastnoise\private\technique.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SImage.cpp" />
-    <ClCompile Include="tinyexr\deps\miniz\miniz.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\stb\stb_image.h" />
-    <ClInclude Include="..\stb\stb_image_write.h" />
     <ClInclude Include="DX12.h" />
-    <ClInclude Include="fastnoise\private\dxutils.h" />
-    <ClInclude Include="fastnoise\private\shadercompiler.h" />
+    <ClInclude Include="fastnoise\DX12Utils\DelayedReleaseTracker.h" />
+    <ClInclude Include="fastnoise\DX12Utils\dxutils.h" />
+    <ClInclude Include="fastnoise\DX12Utils\FileCache.h" />
+    <ClInclude Include="fastnoise\DX12Utils\HeapAllocationTracker.h" />
+    <ClInclude Include="fastnoise\DX12Utils\logfn.h" />
+    <ClInclude Include="fastnoise\DX12Utils\ParseCSV.h" />
+    <ClInclude Include="fastnoise\DX12Utils\ReadbackHelper.h" />
+    <ClInclude Include="fastnoise\DX12Utils\shadercompiler.h" />
+    <ClInclude Include="fastnoise\DX12Utils\SRGB.h" />
+    <ClInclude Include="fastnoise\DX12Utils\stb\stb_image.h" />
+    <ClInclude Include="fastnoise\DX12Utils\stb\stb_image_write.h" />
+    <ClInclude Include="fastnoise\DX12Utils\TextureCache.h" />
+    <ClInclude Include="fastnoise\DX12Utils\tinyexr\deps\miniz\miniz.h" />
+    <ClInclude Include="fastnoise\DX12Utils\tinyexr\tinyexr.h" />
     <ClInclude Include="fastnoise\private\technique.h" />
+    <ClInclude Include="fastnoise\public\all.h" />
+    <ClInclude Include="fastnoise\public\imgui.h" />
+    <ClInclude Include="fastnoise\public\pythoninterface.h" />
     <ClInclude Include="fastnoise\public\technique.h" />
     <ClInclude Include="SBuffer.h" />
     <ClInclude Include="SImage.h" />
-    <ClInclude Include="tinyexr\deps\miniz\miniz.h" />
-    <ClInclude Include="tinyexr\tinyexr.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="fastnoise\shaders\fastnoise.hlsl">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="fastnoise\shaders\init.hlsl">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="fastnoise\shaders\loss.hlsl">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="fastnoise\shaders\swap.hlsl">
-      <FileType>Document</FileType>
-    </None>
     <None Include="scripts\histogram.py" />
     <None Include="scripts\makenoise-spatial.py" />
     <None Include="scripts\makenoise-temporal.py" />
     <None Include="scripts\spectrum.py" />
     <None Include="scripts\temporal-plot.py" />
     <None Include="scripts\temporal.py" />
-    <None Include="tinyexr\deps\miniz\LICENSE" />
-    <None Include="tinyexr\deps\miniz\readme.md" />
-    <None Include="tinyexr\README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="fastnoise\shaders\fastnoise.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
+    <None Include="fastnoise\shaders\init.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
+    <None Include="fastnoise\shaders\loss.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
+    <None Include="fastnoise\shaders\swap.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

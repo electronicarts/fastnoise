@@ -25,7 +25,7 @@ scalar value.
 
 Running the executable with no parameters will give the following output:
 
-FastNoise.exe \<sampleSpace> \<distribution> \<filterXY> \<filterZ> \<filterCombine> \<textureSize> \<fileName> [-split] [-numsteps \<steps>] [-output \<type>]
+FastNoise.exe \<sampleSpace> \<distribution> \<filterXY> \<filterZ> \<filterCombine> \<textureSize> \<fileName> [Options]
 
   \<sampleSpace>  - The type of value stored in each pixel.
                      Real | Circle | Vector2 | Vector3 | Vector4 | Sphere
@@ -52,12 +52,19 @@ FastNoise.exe \<sampleSpace> \<distribution> \<filterXY> \<filterZ> \<filterComb
 
   \<fileName>      - The path and filename to output, without a file extension.
 
-  -split          - If specified, each slice will be output as a separate image, else, all
-                    slices will be put together into a single image.
+Options:
+
+  -split             - If specified, each slice will be output as a separate image, else, all
+                       slices will be put together into a single image.
 
   -numsteps \<steps> - specify how many iterations of optimization to do. defualts to 10,000.
 
-  -output \<type>  - Force an output type.  type can be: exr, csv.
+  -output \<type>    - Force an output type.  type can be: exr, csv.
+
+  -seed \<value>     - Force the random seed value. Makes process deterministic.
+
+  -init \<filename>  - Load data for initial state instead of init.hlsl generating it. Binary
+                       file must contain textureSize.x * textureSize.y * textureSize.z * 4 floats.
 
 Parameter Explanation:
 - Box size is diameter, so 3 gives you 3x3, 5 gives you 5x5 etc.
@@ -97,6 +104,14 @@ Subfolders contain temporal noise that is either optimized for EMA over time (ex
 Product noise multiplies the spatial and temporal filters together. Separate noise adds them.
 
 Please see [FastNoise Design and Usage](FastNoiseDesign.md) for more information about what type of noise to use under specific circumstances.
+
+## Resources
+
+[ea.com: Filter-Adapted Spatio-Temporal Sampling for Real-Time Rendering](https://www.ea.com/seed/news/spatio-temporal-sampling)
+
+[Arxiv: Filter-adapted spatiotemporal sampling for real-time rendering](https://arxiv.org/abs/2310.15364)
+
+Our work will appear at i3D 20204. Links will be added when available!
 
 ## Authors
 
