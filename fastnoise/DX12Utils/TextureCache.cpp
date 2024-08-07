@@ -275,7 +275,7 @@ TextureCache::Texture TextureCache::GetAs(const char* fileName, bool sourceIsSRG
 			for (size_t c = numSrcChannels; c < desiredChannels; ++c)
 			{
 				// Alpha channel gets a 255 or 1.0
-				if (c == 4)
+				if (c == 3)
 				{
 					if (ret.type == Type::F32)
 					{
