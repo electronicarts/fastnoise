@@ -1,0 +1,565 @@
+{
+    "$schema": "gigischema.json",
+    "name": "fastnoise",
+    "version": "0.96b",
+    "variables": [
+        {
+            "name": "TextureSize",
+            "comment": "The size of the output texture",
+            "type": "Uint3",
+            "dflt": "{64, 64, 1}",
+            "visibility": "Host"
+        },
+        {
+            "name": "rngSeed",
+            "comment": "Used during texture initialization",
+            "type": "Uint",
+            "dflt": "1338",
+            "visibility": "Host"
+        },
+        {
+            "name": "Iteration",
+            "comment": "The current iteration",
+            "type": "Uint",
+            "dflt": "0",
+            "visibility": "Host"
+        },
+        {
+            "name": "filterMin",
+            "comment": "Minimum range of the filter in each dimension",
+            "type": "Int3",
+            "dflt": "{0,0,0}",
+            "visibility": "Host"
+        },
+        {
+            "name": "filterMax",
+            "comment": "Maximum range of the filter in each dimension",
+            "type": "Int3",
+            "dflt": "{0,0,0}",
+            "visibility": "Host"
+        },
+        {
+            "name": "filterOffset",
+            "comment": "Offset into the filter buffer",
+            "type": "Int3",
+            "dflt": "{0,0,0}",
+            "visibility": "Host"
+        },
+        {
+            "name": "swapSuppression",
+            "type": "Uint",
+            "dflt": "64",
+            "visibility": "Host"
+        },
+        {
+            "name": "filterX",
+            "type": "Int",
+            "dflt": "Box",
+            "visibility": "Host",
+            "Enum": "FilterType"
+        },
+        {
+            "name": "filterY",
+            "type": "Int",
+            "dflt": "Box",
+            "visibility": "Host",
+            "Enum": "FilterType"
+        },
+        {
+            "name": "filterZ",
+            "type": "Int",
+            "dflt": "Box",
+            "visibility": "Host",
+            "Enum": "FilterType"
+        },
+        {
+            "name": "filterXparams",
+            "type": "Float4",
+            "dflt": "1,0,0,0",
+            "visibility": "User"
+        },
+        {
+            "name": "filterYparams",
+            "type": "Float4",
+            "dflt": "1,0,0,0",
+            "visibility": "User"
+        },
+        {
+            "name": "filterZparams",
+            "type": "Float4",
+            "dflt": "1,0,0,0",
+            "visibility": "User"
+        },
+        {
+            "name": "separate",
+            "comment": "Whether to use \"separate\" mode, which makes STBN-style samples",
+            "type": "Bool",
+            "dflt": "false",
+            "visibility": "User"
+        },
+        {
+            "name": "separateWeight",
+            "comment": "If \"separate\" is true, the weight for blending between temporal and spatial filter",
+            "type": "Float",
+            "dflt": "0.5",
+            "visibility": "User"
+        },
+        {
+            "name": "sampleSpace",
+            "type": "Int",
+            "dflt": "Real",
+            "visibility": "User",
+            "Enum": "SampleSpace"
+        },
+        {
+            "name": "sampleDistribution",
+            "type": "Int",
+            "dflt": "Uniform1D",
+            "visibility": "User",
+            "Enum": "SampleDistribution"
+        },
+        {
+            "name": "key",
+            "comment": "Used for generating random permutations",
+            "type": "Uint4",
+            "dflt": "0,0,0,0",
+            "visibility": "Host"
+        },
+        {
+            "name": "scrambleBits",
+            "comment": "Number of bits to use in randomization",
+            "type": "Uint",
+            "dflt": "0",
+            "visibility": "Host"
+        },
+        {
+            "name": "InitFromBuffer",
+            "type": "Bool",
+            "dflt": "false",
+            "visibility": "Host"
+        }
+    ],
+    "shaders": [
+        {
+            "name": "Init",
+            "fileName": "init.hlsl",
+            "entryPoint": "Init",
+            "resources": [
+                {
+                    "name": "Texture",
+                    "type": "Texture",
+                    "access": "UAV",
+                    "texture": {
+                        "dimension": "Texture3D"
+                    }
+                },
+                {
+                    "name": "Data",
+                    "type": "Buffer",
+                    "access": "UAV",
+                    "buffer": {
+                        "typeStruct": {
+                            "name": "DataStruct"
+                        }
+                    }
+                },
+                {
+                    "name": "InitBuffer",
+                    "type": "Buffer",
+                    "access": "SRV",
+                    "buffer": {
+                        "type": "Float4"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Loss",
+            "fileName": "loss.hlsl",
+            "entryPoint": "Loss",
+            "resources": [
+                {
+                    "name": "LossTexture",
+                    "type": "Texture",
+                    "access": "UAV",
+                    "texture": {
+                        "dimension": "Texture3D",
+                        "viewType": "Float"
+                    }
+                },
+                {
+                    "name": "Filter",
+                    "type": "Buffer",
+                    "access": "SRV",
+                    "buffer": {
+                        "type": "Float"
+                    }
+                },
+                {
+                    "name": "SampleTexture",
+                    "type": "Texture",
+                    "access": "SRV",
+                    "texture": {
+                        "dimension": "Texture3D"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Swap",
+            "fileName": "swap.hlsl",
+            "entryPoint": "Swap",
+            "resources": [
+                {
+                    "name": "LossTexture",
+                    "type": "Texture",
+                    "access": "SRV",
+                    "texture": {
+                        "dimension": "Texture3D",
+                        "viewType": "Float"
+                    }
+                },
+                {
+                    "name": "SampleTexture",
+                    "type": "Texture",
+                    "access": "UAV",
+                    "texture": {
+                        "dimension": "Texture3D"
+                    }
+                },
+                {
+                    "name": "SwapDebug",
+                    "type": "Texture",
+                    "access": "UAV",
+                    "texture": {
+                        "dimension": "Texture3D"
+                    }
+                },
+                {
+                    "name": "Data",
+                    "type": "Buffer",
+                    "access": "UAV",
+                    "buffer": {
+                        "typeStruct": {
+                            "name": "DataStruct"
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "structs": [
+        {
+            "name": "DataStruct",
+            "fields": [
+                {
+                    "name": "initialized",
+                    "type": "Bool",
+                    "dflt": "false"
+                },
+                {
+                    "name": "iterationSum",
+                    "type": "Uint",
+                    "dflt": "0"
+                },
+                {
+                    "name": "swaps",
+                    "type": "Uint",
+                    "dflt": "0"
+                }
+            ]
+        }
+    ],
+    "fileCopies": [
+        {
+            "fileName": "fastnoise.hlsl",
+            "type": "Shader"
+        }
+    ],
+    "nodes": [
+        {
+            "resourceTexture": {
+                "name": "Texture",
+                "editorPos": [
+                    -69.0,
+                    -78.0
+                ],
+                "transient": false,
+                "visibility": "Exported",
+                "format": {
+                    "format": "RGBA32_Float"
+                },
+                "size": {
+                    "variable": {
+                        "name": "TextureSize"
+                    }
+                },
+                "dimension": "Texture3D"
+            }
+        },
+        {
+            "resourceBuffer": {
+                "name": "Data",
+                "editorPos": [
+                    -69.0,
+                    -30.0
+                ],
+                "transient": false,
+                "visibility": "Exported",
+                "format": {
+                    "structureType": {
+                        "name": "DataStruct"
+                    }
+                }
+            }
+        },
+        {
+            "actionComputeShader": {
+                "name": "Initialise",
+                "editorPos": [
+                    88.0,
+                    -83.0
+                ],
+                "shader": {
+                    "name": "Init"
+                },
+                "dispatchSize": {
+                    "node": {
+                        "name": "Texture"
+                    }
+                },
+                "connections": [
+                    {
+                        "srcPin": "Texture",
+                        "dstNode": "Texture",
+                        "dstPin": "resource"
+                    },
+                    {
+                        "srcPin": "Data",
+                        "dstNode": "Data",
+                        "dstPin": "resource"
+                    },
+                    {
+                        "srcPin": "InitBuffer",
+                        "dstNode": "InitBuffer",
+                        "dstPin": "resource"
+                    }
+                ]
+            }
+        },
+        {
+            "actionComputeShader": {
+                "name": "CalculateLoss",
+                "editorPos": [
+                    258.0,
+                    -182.0
+                ],
+                "shader": {
+                    "name": "Loss"
+                },
+                "dispatchSize": {
+                    "node": {
+                        "name": "Texture"
+                    }
+                },
+                "connections": [
+                    {
+                        "srcPin": "LossTexture",
+                        "dstNode": "Loss",
+                        "dstPin": "resource"
+                    },
+                    {
+                        "srcPin": "SampleTexture",
+                        "dstNode": "Initialise",
+                        "dstPin": "Texture"
+                    },
+                    {
+                        "srcPin": "Filter",
+                        "dstNode": "Filter",
+                        "dstPin": "resource"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceTexture": {
+                "name": "Loss",
+                "comment": "For storing values of the loss function",
+                "editorPos": [
+                    112.0,
+                    -227.0
+                ],
+                "format": {
+                    "format": "R32_Float"
+                },
+                "size": {
+                    "variable": {
+                        "name": "TextureSize"
+                    }
+                },
+                "dimension": "Texture3D"
+            }
+        },
+        {
+            "actionComputeShader": {
+                "name": "Swap",
+                "editorPos": [
+                    466.0,
+                    -153.0
+                ],
+                "shader": {
+                    "name": "Swap"
+                },
+                "dispatchSize": {
+                    "node": {
+                        "name": "Texture"
+                    }
+                },
+                "connections": [
+                    {
+                        "srcPin": "LossTexture",
+                        "dstNode": "CalculateLoss",
+                        "dstPin": "LossTexture"
+                    },
+                    {
+                        "srcPin": "SampleTexture",
+                        "dstNode": "CalculateLoss",
+                        "dstPin": "SampleTexture"
+                    },
+                    {
+                        "srcPin": "SwapDebug",
+                        "dstNode": "SwapDebug",
+                        "dstPin": "resource"
+                    },
+                    {
+                        "srcPin": "Data",
+                        "dstNode": "Initialise",
+                        "dstPin": "Data"
+                    }
+                ]
+            }
+        },
+        {
+            "resourceTexture": {
+                "name": "SwapDebug",
+                "editorPos": [
+                    272.0,
+                    29.0
+                ],
+                "visibility": "Exported",
+                "format": {
+                    "node": {
+                        "name": "Texture"
+                    },
+                    "format": "RGBA32_Float"
+                },
+                "size": {
+                    "variable": {
+                        "name": "TextureSize"
+                    }
+                },
+                "dimension": "Texture3D"
+            }
+        },
+        {
+            "resourceBuffer": {
+                "name": "Filter",
+                "editorPos": [
+                    112.0,
+                    -163.0
+                ],
+                "visibility": "Imported",
+                "format": {
+                    "type": "Float"
+                }
+            }
+        },
+        {
+            "resourceBuffer": {
+                "name": "InitBuffer",
+                "editorPos": [
+                    -69.0,
+                    18.0
+                ],
+                "visibility": "Imported"
+            }
+        }
+    ],
+    "enums": [
+        {
+            "name": "FilterType",
+            "items": [
+                {
+                    "label": "Box"
+                },
+                {
+                    "label": "Gaussian"
+                },
+                {
+                    "label": "Binomial"
+                },
+                {
+                    "label": "Exponential"
+                },
+                {
+                    "label": "WeightedExponential"
+                }
+            ]
+        },
+        {
+            "name": "SampleSpace",
+            "items": [
+                {
+                    "label": "Real"
+                },
+                {
+                    "label": "Circle"
+                },
+                {
+                    "label": "Vector2"
+                },
+                {
+                    "label": "Vector3"
+                },
+                {
+                    "label": "Vector4"
+                },
+                {
+                    "label": "Sphere"
+                }
+            ]
+        },
+        {
+            "name": "SampleDistribution",
+            "items": [
+                {
+                    "label": "Uniform1D"
+                },
+                {
+                    "label": "Gauss1D"
+                },
+                {
+                    "label": "Tent1D"
+                },
+                {
+                    "label": "Uniform2D"
+                },
+                {
+                    "label": "Uniform3D"
+                },
+                {
+                    "label": "Uniform4D"
+                },
+                {
+                    "label": "UniformSphere"
+                },
+                {
+                    "label": "UniformHemisphere"
+                },
+                {
+                    "label": "CosineHemisphere"
+                }
+            ]
+        }
+    ]
+}
