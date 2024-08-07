@@ -91,10 +91,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="fastnoise\DX12Utils\CompileShaders_dxc.cpp" />
+    <ClCompile Include="fastnoise\DX12Utils\CompileShaders_fxc.cpp" />
     <ClCompile Include="fastnoise\DX12Utils\dxutils.cpp" />
     <ClCompile Include="fastnoise\DX12Utils\FileCache.cpp" />
-    <ClCompile Include="fastnoise\DX12Utils\shadercompiler_dxc.cpp" />
-    <ClCompile Include="fastnoise\DX12Utils\shadercompiler_fxc.cpp" />
     <ClCompile Include="fastnoise\DX12Utils\TextureCache.cpp" />
     <ClCompile Include="fastnoise\DX12Utils\tinyexr\deps\miniz\miniz.c" />
     <ClCompile Include="fastnoise\private\technique.cpp" />
@@ -103,6 +103,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DX12.h" />
+    <ClInclude Include="fastnoise\DX12Utils\CompileShaders.h" />
     <ClInclude Include="fastnoise\DX12Utils\DelayedReleaseTracker.h" />
     <ClInclude Include="fastnoise\DX12Utils\dxutils.h" />
     <ClInclude Include="fastnoise\DX12Utils\FileCache.h" />
@@ -110,7 +111,6 @@
     <ClInclude Include="fastnoise\DX12Utils\logfn.h" />
     <ClInclude Include="fastnoise\DX12Utils\ParseCSV.h" />
     <ClInclude Include="fastnoise\DX12Utils\ReadbackHelper.h" />
-    <ClInclude Include="fastnoise\DX12Utils\shadercompiler.h" />
     <ClInclude Include="fastnoise\DX12Utils\SRGB.h" />
     <ClInclude Include="fastnoise\DX12Utils\stb\stb_image.h" />
     <ClInclude Include="fastnoise\DX12Utils\stb\stb_image_write.h" />

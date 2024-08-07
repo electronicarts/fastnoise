@@ -1,7 +1,7 @@
 {
     "$schema": "gigischema.json",
     "name": "fastnoise",
-    "version": "0.96b",
+    "version": "0.99b",
     "variables": [
         {
             "name": "TextureSize",
@@ -149,6 +149,9 @@
                     "name": "Texture",
                     "type": "Texture",
                     "access": "UAV",
+                    "buffer": {
+                        "PODAsStructuredBuffer": false
+                    },
                     "texture": {
                         "dimension": "Texture3D"
                     }
@@ -160,7 +163,8 @@
                     "buffer": {
                         "typeStruct": {
                             "name": "DataStruct"
-                        }
+                        },
+                        "PODAsStructuredBuffer": false
                     }
                 },
                 {
@@ -168,7 +172,8 @@
                     "type": "Buffer",
                     "access": "SRV",
                     "buffer": {
-                        "type": "Float4"
+                        "type": "Float4",
+                        "PODAsStructuredBuffer": false
                     }
                 }
             ]
@@ -182,6 +187,9 @@
                     "name": "LossTexture",
                     "type": "Texture",
                     "access": "UAV",
+                    "buffer": {
+                        "PODAsStructuredBuffer": false
+                    },
                     "texture": {
                         "dimension": "Texture3D",
                         "viewType": "Float"
@@ -192,13 +200,17 @@
                     "type": "Buffer",
                     "access": "SRV",
                     "buffer": {
-                        "type": "Float"
+                        "type": "Float",
+                        "PODAsStructuredBuffer": false
                     }
                 },
                 {
                     "name": "SampleTexture",
                     "type": "Texture",
                     "access": "SRV",
+                    "buffer": {
+                        "PODAsStructuredBuffer": false
+                    },
                     "texture": {
                         "dimension": "Texture3D"
                     }
@@ -214,6 +226,9 @@
                     "name": "LossTexture",
                     "type": "Texture",
                     "access": "SRV",
+                    "buffer": {
+                        "PODAsStructuredBuffer": false
+                    },
                     "texture": {
                         "dimension": "Texture3D",
                         "viewType": "Float"
@@ -223,6 +238,9 @@
                     "name": "SampleTexture",
                     "type": "Texture",
                     "access": "UAV",
+                    "buffer": {
+                        "PODAsStructuredBuffer": false
+                    },
                     "texture": {
                         "dimension": "Texture3D"
                     }
@@ -231,6 +249,9 @@
                     "name": "SwapDebug",
                     "type": "Texture",
                     "access": "UAV",
+                    "buffer": {
+                        "PODAsStructuredBuffer": false
+                    },
                     "texture": {
                         "dimension": "Texture3D"
                     }
@@ -242,7 +263,8 @@
                     "buffer": {
                         "typeStruct": {
                             "name": "DataStruct"
-                        }
+                        },
+                        "PODAsStructuredBuffer": false
                     }
                 }
             ]
@@ -320,14 +342,12 @@
                     88.0,
                     -83.0
                 ],
-                "shader": {
-                    "name": "Init"
-                },
-                "dispatchSize": {
-                    "node": {
-                        "name": "Texture"
-                    }
-                },
+                "linkProperties": [
+                    {},
+                    {},
+                    {},
+                    {}
+                ],
                 "connections": [
                     {
                         "srcPin": "Texture",
@@ -344,7 +364,15 @@
                         "dstNode": "InitBuffer",
                         "dstPin": "resource"
                     }
-                ]
+                ],
+                "shader": {
+                    "name": "Init"
+                },
+                "dispatchSize": {
+                    "node": {
+                        "name": "Texture"
+                    }
+                }
             }
         },
         {
@@ -354,14 +382,12 @@
                     258.0,
                     -182.0
                 ],
-                "shader": {
-                    "name": "Loss"
-                },
-                "dispatchSize": {
-                    "node": {
-                        "name": "Texture"
-                    }
-                },
+                "linkProperties": [
+                    {},
+                    {},
+                    {},
+                    {}
+                ],
                 "connections": [
                     {
                         "srcPin": "LossTexture",
@@ -378,7 +404,15 @@
                         "dstNode": "Filter",
                         "dstPin": "resource"
                     }
-                ]
+                ],
+                "shader": {
+                    "name": "Loss"
+                },
+                "dispatchSize": {
+                    "node": {
+                        "name": "Texture"
+                    }
+                }
             }
         },
         {
@@ -407,14 +441,13 @@
                     466.0,
                     -153.0
                 ],
-                "shader": {
-                    "name": "Swap"
-                },
-                "dispatchSize": {
-                    "node": {
-                        "name": "Texture"
-                    }
-                },
+                "linkProperties": [
+                    {},
+                    {},
+                    {},
+                    {},
+                    {}
+                ],
                 "connections": [
                     {
                         "srcPin": "LossTexture",
@@ -436,7 +469,15 @@
                         "dstNode": "Initialise",
                         "dstPin": "Data"
                     }
-                ]
+                ],
+                "shader": {
+                    "name": "Swap"
+                },
+                "dispatchSize": {
+                    "node": {
+                        "name": "Texture"
+                    }
+                }
             }
         },
         {
@@ -561,5 +602,13 @@
                 }
             ]
         }
-    ]
+    ],
+    "settings": {
+        "dx12": {
+            "shaderCompiler": "FXC",
+            "shaderModelCs": "cs_5_1",
+            "shaderModelVs": "vs_5_1",
+            "shaderModelPs": "ps_5_1"
+        }
+    }
 }

@@ -59,6 +59,8 @@ RWStructuredBuffer<Struct_DataStruct> Data : register(u1);
 StructuredBuffer<float4> InitBuffer : register(t0);
 ConstantBuffer<Struct__InitCB> _InitCB : register(b0);
 
+#line 1
+
 // https://www.shadertoy.com/view/MlVSzw
 float inv_error_function(float x)
 {
@@ -74,6 +76,7 @@ float inv_error_function(float x)
 #include "fastnoise.hlsl"
 
 [numthreads(8, 8, 1)]
+#line 16
 void Init(uint3 DTid : SV_DispatchThreadID)
 {
 
