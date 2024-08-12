@@ -58,10 +58,13 @@ RWTexture3D<float4> SwapDebug : register(u1);
 RWStructuredBuffer<Struct_DataStruct> Data : register(u2);
 ConstantBuffer<Struct__SwapCB> _SwapCB : register(b0);
 
+#line 1
+
 
 #include "fastnoise.hlsl"
 
 [numthreads(8, 8, 1)]
+#line 5
 void Swap(uint3 DTid : SV_DispatchThreadID)
 {
 	// 1. Total loss for the swap is sum of loss texture at source and destination

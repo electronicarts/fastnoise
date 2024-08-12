@@ -1,0 +1,104 @@
+{
+    "resourceViewType": 4,
+    "resourceViewResourceIndex": 1,
+    "importedResources": [
+        {
+            "nodeName": "Filter",
+            "isATexture": false,
+            "buffer": {
+                "type": "Int",
+                "count": 20,
+                "BLASOpaque": true
+            }
+        },
+        {
+            "nodeName": "InitBuffer",
+            "isATexture": false,
+            "buffer": {
+                "BLASOpaque": true
+            }
+        }
+    ],
+    "savedVariables": [
+        {
+            "name": "TextureSize",
+            "value": "0,64,1"
+        },
+        {
+            "name": "rngSeed",
+            "value": "1338"
+        },
+        {
+            "name": "Iteration",
+            "value": "0"
+        },
+        {
+            "name": "filterMin",
+            "value": "0,0,0"
+        },
+        {
+            "name": "filterMax",
+            "value": "0,0,0"
+        },
+        {
+            "name": "filterOffset",
+            "value": "0,0,0"
+        },
+        {
+            "name": "swapSuppression",
+            "value": "64"
+        },
+        {
+            "name": "filterX",
+            "value": "0"
+        },
+        {
+            "name": "filterY",
+            "value": "0"
+        },
+        {
+            "name": "filterZ",
+            "value": "0"
+        },
+        {
+            "name": "filterXparams",
+            "value": "1.000000,0.000000,0.000000,0.000000"
+        },
+        {
+            "name": "filterYparams",
+            "value": "1.000000,0.000000,0.000000,0.000000"
+        },
+        {
+            "name": "filterZparams",
+            "value": "1.000000,0.000000,0.000000,0.000000"
+        },
+        {
+            "name": "separate",
+            "value": "false"
+        },
+        {
+            "name": "separateWeight",
+            "value": "0.500000"
+        },
+        {
+            "name": "sampleSpace",
+            "value": "0"
+        },
+        {
+            "name": "sampleDistribution",
+            "value": "0"
+        },
+        {
+            "name": "key",
+            "value": "0,0,0,0"
+        },
+        {
+            "name": "scrambleBits",
+            "value": "0"
+        },
+        {
+            "name": "InitFromBuffer",
+            "value": "false"
+        }
+    ]
+}

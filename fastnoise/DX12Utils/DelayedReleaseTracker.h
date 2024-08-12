@@ -19,7 +19,7 @@ public:
         // advance the age of each object. Free them when it's safe to do so.
         m_objects.erase(
             std::remove_if(m_objects.begin(), m_objects.end(),
-                [maxFramesInFlight](Object object)
+                [maxFramesInFlight](Object& object)
                 {
                     object.age++;
                     if (object.age >= maxFramesInFlight)

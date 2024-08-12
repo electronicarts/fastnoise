@@ -6,23 +6,23 @@
     <ClCompile Include="fastnoise\private\technique.cpp">
       <Filter>fastnoise\private</Filter>
     </ClCompile>
-    <ClCompile Include="fastnoise\DX12Utils\FileCache.cpp">
+    <ClCompile Include="fastnoise\DX12Utils\tinyexr\deps\miniz\miniz.c">
+      <Filter>fastnoise\DX12Utils\tinyexr\deps\miniz</Filter>
+    </ClCompile>
+    <ClCompile Include="fastnoise\DX12Utils\CompileShaders_dxc.cpp">
       <Filter>fastnoise\DX12Utils</Filter>
     </ClCompile>
-    <ClCompile Include="fastnoise\DX12Utils\shadercompiler_dxc.cpp">
-      <Filter>fastnoise\DX12Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="fastnoise\DX12Utils\shadercompiler_fxc.cpp">
-      <Filter>fastnoise\DX12Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="fastnoise\DX12Utils\TextureCache.cpp">
+    <ClCompile Include="fastnoise\DX12Utils\CompileShaders_fxc.cpp">
       <Filter>fastnoise\DX12Utils</Filter>
     </ClCompile>
     <ClCompile Include="fastnoise\DX12Utils\dxutils.cpp">
       <Filter>fastnoise\DX12Utils</Filter>
     </ClCompile>
-    <ClCompile Include="fastnoise\DX12Utils\tinyexr\deps\miniz\miniz.c">
-      <Filter>fastnoise\DX12Utils\tinyexr\deps\miniz</Filter>
+    <ClCompile Include="fastnoise\DX12Utils\FileCache.cpp">
+      <Filter>fastnoise\DX12Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="fastnoise\DX12Utils\TextureCache.cpp">
+      <Filter>fastnoise\DX12Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -76,6 +76,27 @@
     <ClInclude Include="fastnoise\private\technique.h">
       <Filter>fastnoise\private</Filter>
     </ClInclude>
+    <ClInclude Include="fastnoise\DX12Utils\stb\stb_image.h">
+      <Filter>fastnoise\DX12Utils\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastnoise\DX12Utils\stb\stb_image_write.h">
+      <Filter>fastnoise\DX12Utils\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="fastnoise\DX12Utils\tinyexr\tinyexr.h">
+      <Filter>fastnoise\DX12Utils\tinyexr</Filter>
+    </ClInclude>
+    <ClInclude Include="fastnoise\DX12Utils\tinyexr\deps\miniz\miniz.h">
+      <Filter>fastnoise\DX12Utils\tinyexr\deps\miniz</Filter>
+    </ClInclude>
+    <ClInclude Include="fastnoise\DX12Utils\CompileShaders.h">
+      <Filter>fastnoise\DX12Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="fastnoise\DX12Utils\DelayedReleaseTracker.h">
+      <Filter>fastnoise\DX12Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="fastnoise\DX12Utils\dxutils.h">
+      <Filter>fastnoise\DX12Utils</Filter>
+    </ClInclude>
     <ClInclude Include="fastnoise\DX12Utils\FileCache.h">
       <Filter>fastnoise\DX12Utils</Filter>
     </ClInclude>
@@ -91,32 +112,11 @@
     <ClInclude Include="fastnoise\DX12Utils\ReadbackHelper.h">
       <Filter>fastnoise\DX12Utils</Filter>
     </ClInclude>
-    <ClInclude Include="fastnoise\DX12Utils\shadercompiler.h">
-      <Filter>fastnoise\DX12Utils</Filter>
-    </ClInclude>
     <ClInclude Include="fastnoise\DX12Utils\SRGB.h">
       <Filter>fastnoise\DX12Utils</Filter>
     </ClInclude>
     <ClInclude Include="fastnoise\DX12Utils\TextureCache.h">
       <Filter>fastnoise\DX12Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="fastnoise\DX12Utils\DelayedReleaseTracker.h">
-      <Filter>fastnoise\DX12Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="fastnoise\DX12Utils\dxutils.h">
-      <Filter>fastnoise\DX12Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="fastnoise\DX12Utils\stb\stb_image.h">
-      <Filter>fastnoise\DX12Utils\stb</Filter>
-    </ClInclude>
-    <ClInclude Include="fastnoise\DX12Utils\stb\stb_image_write.h">
-      <Filter>fastnoise\DX12Utils\stb</Filter>
-    </ClInclude>
-    <ClInclude Include="fastnoise\DX12Utils\tinyexr\tinyexr.h">
-      <Filter>fastnoise\DX12Utils\tinyexr</Filter>
-    </ClInclude>
-    <ClInclude Include="fastnoise\DX12Utils\tinyexr\deps\miniz\miniz.h">
-      <Filter>fastnoise\DX12Utils\tinyexr\deps\miniz</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

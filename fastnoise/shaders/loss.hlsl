@@ -57,6 +57,8 @@ Buffer<float> Filter : register(t0);
 Texture3D<float4> SampleTexture : register(t1);
 ConstantBuffer<Struct__LossCB> _LossCB : register(b0);
 
+#line 1
+
 
 #include "fastnoise.hlsl"
 
@@ -133,6 +135,7 @@ float doubledFilter(int3 i, int3 filterMin, int3 filterMax, int3 filterOffset)
 }
 
 [numthreads(8, 8, 1)]
+#line 77
 void Loss(uint3 DTid : SV_DispatchThreadID)
 {
 	int3 index = DTid;

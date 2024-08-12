@@ -1,66 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
-//               FastNoise - F.A.S.T. Sampling Implementation                //
-//         Copyright (c) 2023 Electronic Arts Inc. All rights reserved.      //
-///////////////////////////////////////////////////////////////////////////////
-
-struct FilterType
-{
-    static const int Box = 0;
-    static const int Gaussian = 1;
-    static const int Binomial = 2;
-    static const int Exponential = 3;
-    static const int WeightedExponential = 4;
-};
-
-struct SampleSpace
-{
-    static const int Real = 0;
-    static const int Circle = 1;
-    static const int Vector2 = 2;
-    static const int Vector3 = 3;
-    static const int Vector4 = 4;
-    static const int Sphere = 5;
-};
-
-struct SampleDistribution
-{
-    static const int Uniform1D = 0;
-    static const int Gauss1D = 1;
-    static const int Tent1D = 2;
-    static const int Uniform2D = 3;
-    static const int Uniform3D = 4;
-    static const int Uniform4D = 5;
-    static const int UniformSphere = 6;
-    static const int UniformHemisphere = 7;
-    static const int CosineHemisphere = 8;
-};
-
-struct Struct_DataStruct
-{
-    uint initialized;
-    uint iterationSum;
-    uint swaps;
-};
-
-struct Struct__InitCB
-{
-    uint InitFromBuffer;
-    uint Iteration;
-    float2 _padding0;
-    uint4 key;
-    uint rngSeed;
-    int sampleDistribution;
-    uint scrambleBits;
-    float _padding1;
-};
-
-RWTexture3D<float4> Texture : register(u0);
-RWStructuredBuffer<Struct_DataStruct> Data : register(u1);
-StructuredBuffer<float4> InitBuffer : register(t0);
-ConstantBuffer<Struct__InitCB> _InitCB : register(b0);
-
-#line 1
-
+/*$(ShaderResources)*/
 // https://www.shadertoy.com/view/MlVSzw
 float inv_error_function(float x)
 {
@@ -75,9 +13,7 @@ float inv_error_function(float x)
 
 #include "fastnoise.hlsl"
 
-[numthreads(8, 8, 1)]
-#line 16
-void Init(uint3 DTid : SV_DispatchThreadID)
+/*$(_compute:Init)*/(uint3 DTid : SV_DispatchThreadID)
 {
 
 	// Set swap count to zero
@@ -87,14 +23,14 @@ void Init(uint3 DTid : SV_DispatchThreadID)
 	}
 
 	// Beyond this point only do first-run initialization
-	if (_InitCB.Iteration > 0)
+	if (/*$(Variable:Iteration)*/ > 0)
 		return;
 
 	// Calculate based on the other index
-	uint3 otherIndex = getOtherIndex(DTid, _InitCB.key, _InitCB.scrambleBits);
+	uint3 otherIndex = getOtherIndex(DTid, /*$(Variable:key)*/, /*$(Variable:scrambleBits)*/);
 
 	// How many bits of each index to scramble
-	uint3 bits = uint3(_InitCB.scrambleBits, _InitCB.scrambleBits, 0);
+	uint3 bits = uint3(/*$(Variable:scrambleBits)*/, /*$(Variable:scrambleBits)*/, 0);
 	uint3 mask = (1 << bits) - 1;
 	uint3 shift = uint3(bits.y + bits.z, bits.z, 0);
 	uint totalBits = bits.x + bits.y + bits.z;
@@ -107,12 +43,12 @@ void Init(uint3 DTid : SV_DispatchThreadID)
 
 
 	uint v = lowBits;
-	uint rng = wang_hash_init(uint3(DTid.xy, _InitCB.rngSeed));
+	uint rng = wang_hash_init(uint3(DTid.xy, /*$(Variable:rngSeed)*/));
 
 	// At this point we have v which is a random number of "totalBits" number of bits
 	// We use this to generate a stratified sample
 	float4 value = 0.0f;
-	if (_InitCB.InitFromBuffer)
+	if (/*$(Variable:InitFromBuffer)*/)
 	{
 		uint3 dims;
 		Texture.GetDimensions(dims.x, dims.y, dims.z);
@@ -124,12 +60,12 @@ void Init(uint3 DTid : SV_DispatchThreadID)
 
 		value = InitBuffer[initIndex];
 	}
-	else if (_InitCB.sampleDistribution == SampleDistribution::Uniform1D)
+	else if (/*$(Variable:sampleDistribution)*/ == SampleDistribution::Uniform1D)
 	{
 		float f = (v + wang_hash_float01(rng)) / float(1 << totalBits);
 		value = float4(f, f, f, 1.0f);
 	}
-	else if (_InitCB.sampleDistribution == SampleDistribution::Tent1D)
+	else if (/*$(Variable:sampleDistribution)*/ == SampleDistribution::Tent1D)
 	{
 		float u = (v + wang_hash_float01(rng)) / float(1 << totalBits);
 		float f = 0.0f;
@@ -143,13 +79,13 @@ void Init(uint3 DTid : SV_DispatchThreadID)
 		};
 		value = float4(f, f, f, 1.0f);
 	}
-	else if (_InitCB.sampleDistribution == SampleDistribution::Gauss1D)
+	else if (/*$(Variable:sampleDistribution)*/ == SampleDistribution::Gauss1D)
 	{
 		float u = (v + wang_hash_float01(rng)) / float(1 << totalBits);
 		float f = inv_error_function(u * 2.0f - 1.0f) * 0.15f + 0.5f;
 		value = float4(f, f, f, 1.0f);
 	}
-	else if (_InitCB.sampleDistribution == SampleDistribution::Uniform2D)
+	else if (/*$(Variable:sampleDistribution)*/ == SampleDistribution::Uniform2D)
 	{
 		uint halfTotalBits = totalBits / 2;
 		uint i = v >> halfTotalBits;
@@ -158,7 +94,7 @@ void Init(uint3 DTid : SV_DispatchThreadID)
 		float b = (j + wang_hash_float01(rng)) / float(1 << halfTotalBits);
 		value = float4(a, b, 0.0f, 1.0f);
 	}
-	else if (_InitCB.sampleDistribution == SampleDistribution::CosineHemisphere)
+	else if (/*$(Variable:sampleDistribution)*/ == SampleDistribution::CosineHemisphere)
 	{
 		uint halfTotalBits = totalBits / 2;
 		uint i = v >> halfTotalBits;
@@ -172,7 +108,7 @@ void Init(uint3 DTid : SV_DispatchThreadID)
 		// w is in the unit sphere, remap to [0,1] range for later storage in a texture
 		value = float4(0.5f + 0.5f * w, 1.0f);
 	}
-	else if (_InitCB.sampleDistribution == SampleDistribution::UniformHemisphere)
+	else if (/*$(Variable:sampleDistribution)*/ == SampleDistribution::UniformHemisphere)
 	{
 		uint halfTotalBits = totalBits / 2;
 		uint i = v >> halfTotalBits;
@@ -186,7 +122,7 @@ void Init(uint3 DTid : SV_DispatchThreadID)
 		// v is in the unit sphere, remap to [0,1]
 		value = float4(0.5f + 0.5f *w, 1.0f);
 	}
-	else if (_InitCB.sampleDistribution == SampleDistribution::UniformSphere)
+	else if (/*$(Variable:sampleDistribution)*/ == SampleDistribution::UniformSphere)
 	{
 		// Just as uniform hemisphere, but use one extra bit to specify which hemisphere we're on
 		uint halfTotalBits = totalBits / 2;
@@ -205,7 +141,7 @@ void Init(uint3 DTid : SV_DispatchThreadID)
 		// v is in the unit sphere, remap to [0,1]
 		value = float4(0.5f + 0.5f * w, 1.0f);
 	}
-	else if (_InitCB.sampleDistribution == SampleDistribution::Uniform3D)
+	else if (/*$(Variable:sampleDistribution)*/ == SampleDistribution::Uniform3D)
 	{
 		uint oneThirdTotalBits = totalBits / 3;
 		uint3 stratBits = uint3(oneThirdTotalBits, oneThirdTotalBits, totalBits - 2* oneThirdTotalBits);
@@ -214,7 +150,7 @@ void Init(uint3 DTid : SV_DispatchThreadID)
 		float3 offset = float3(wang_hash_float01(rng), wang_hash_float01(rng), wang_hash_float01(rng));
 		value = float4((base + offset) / (1 << stratBits), 1.0f);
 	}
-	else if (_InitCB.sampleDistribution == SampleDistribution::Uniform4D)
+	else if (/*$(Variable:sampleDistribution)*/ == SampleDistribution::Uniform4D)
 	{
 		// TODO: distribute bits more fairly between components?
 		uint oneQuarterTotalBits = totalBits / 4;
