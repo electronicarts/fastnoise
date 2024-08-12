@@ -14,8 +14,6 @@
 
 #include "fastnoise/public/technique.h"
 
-#define OUTPUT_INTERMEDIATE_IMAGES() false
-
 enum ErrorCodes : int
 {
     OK = 0,
@@ -33,6 +31,7 @@ enum class OutputType
 
 std::string g_outputFileName;
 bool g_outputLayersAsSingleImages = false;
+size_t g_progress = 0;
 size_t g_numSteps = 10000;
 unsigned int g_seed = 0;
 const char* g_initFile = nullptr;
@@ -91,6 +90,8 @@ void PrintUsage()
         "\n"
         "  -init <filename>  - Load data for initial state instead of init.hlsl generating it. Binary\n"
         "                      file must contain textureSize.x*textureSize.y*textureSize.z*4 floats.\n"
+        "\n"
+        "  -progress <count> - Shows this many progress images before the end. Defaults to 0.\n"
         "\n"
         "Parameter Explanation:\n"
         "- Box size is diameter, so 3 gives you 3x3, 5 gives you 5x5 etc.\n"
@@ -448,6 +449,21 @@ bool ParseCommandLine(fastnoise::Context::ContextInput& settings, int argc, char
                 return false;
             }
         }
+        else if (!_stricmp(argv[nextArg], "-progress"))
+        {
+            nextArg++;
+            int progress = 0;
+            if (nextArg < argc && sscanf_s(argv[nextArg], "%i", &progress) == 1)
+            {
+                g_progress = progress;
+                nextArg++;
+            }
+            else
+            {
+                printf("[Error] -progress is missing the number of images to show\n");
+                return false;
+            }
+        }
         else if (!_stricmp(argv[nextArg], "-output"))
         {
             nextArg++;
@@ -766,18 +782,19 @@ int main(int argc, char** argv)
 
     // Iterate
     {
-        const size_t c_imageReadbackInterval = std::max<size_t>(g_numSteps / 10, 1);
+        const size_t c_imageReadbackInterval = g_progress > 0
+            ? std::max<size_t>(g_numSteps / g_progress, 1)
+            : 0;
+
         const size_t c_statusReportInterval = std::max<size_t>(g_numSteps / 100, 1);
 
         SImage fastnoiseTexture;
         SBuffer<fastnoise::Struct_DataStruct> fastnoiseData;
         for (int step = 0; step < g_numSteps; ++step)
         {
-            #if OUTPUT_INTERMEDIATE_IMAGES()
-            bool readbackImage = ((step % c_imageReadbackInterval) == 0) || step == (g_numSteps - 1);
-            #else
-            bool readbackImage = step == (g_numSteps - 1);
-            #endif
+            bool readbackImage = (step == (g_numSteps - 1));
+            if (g_progress > 0)
+                readbackImage |= ((step % c_imageReadbackInterval) == 0);
 
             bool readbackBuffer = ((step % c_statusReportInterval) == 0) || step == (g_numSteps - 1);
 
@@ -883,22 +900,6 @@ int main(int argc, char** argv)
                 }
             );
 
-            #if OUTPUT_INTERMEDIATE_IMAGES()
-            if (readbackImage)
-            {
-                char fileName[256];
-                if (step == (g_numSteps - 1))
-                {
-                    sprintf_s(fileName, "%s.png", g_outputFileName.c_str());
-                }
-                else
-                {
-                    sprintf_s(fileName, "%s_%i.png", g_outputFileName.c_str(), step);
-                }
-                fastnoiseTexture.DoReadback();
-                fastnoiseTexture.Save(fileName, true);
-            }
-            #else
             if (readbackImage)
             {
                 char fileName[256];
@@ -931,17 +932,23 @@ int main(int argc, char** argv)
                 {
                     for (unsigned int z = 0; z < fastnoiseContext->m_input.variable_TextureSize[2]; ++z)
                     {
-                        sprintf_s(fileName, "%s_%i.%s", g_outputFileName.c_str(), z, extension);
+                        if (step == (g_numSteps - 1))
+                            sprintf_s(fileName, "%s_%i.%s", g_outputFileName.c_str(), z, extension);
+                        else
+                            sprintf_s(fileName, "%s_%i.%i.%s", g_outputFileName.c_str(), z, step, extension);
+
                         fastnoiseTexture.SaveRegion(fileName, 0, fastnoiseContext->m_input.variable_TextureSize[0], z * fastnoiseContext->m_input.variable_TextureSize[1], (z + 1) * fastnoiseContext->m_input.variable_TextureSize[1], pixelConversion);
                     }
                 }
                 else
                 {
-                    sprintf_s(fileName, "%s.%s", g_outputFileName.c_str(), extension);
+                    if (step == (g_numSteps - 1))
+                        sprintf_s(fileName, "%s.%s", g_outputFileName.c_str(), extension);
+                    else
+                        sprintf_s(fileName, "%s.%i.%s", g_outputFileName.c_str(), step, extension);
                     fastnoiseTexture.Save(fileName, pixelConversion);
                 }
             }
-            #endif
 
             if (readbackBuffer)
             {

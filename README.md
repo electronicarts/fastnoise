@@ -66,6 +66,8 @@ Options:
   -init \<filename>  - Load data for initial state instead of init.hlsl generating it. Binary
                        file must contain textureSize.x * textureSize.y * textureSize.z * 4 floats.
 
+  -progress \<count>  - Shows this many progress images before the end. Defaults to 0.
+
 Parameter Explanation:
 - Box size is diameter, so 3 gives you 3x3, 5 gives you 5x5 etc.
 - Binomial N is the N in N choose K, so 2 gives 3x3, 4 gives 5x5 etc.
