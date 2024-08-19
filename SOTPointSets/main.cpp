@@ -33,6 +33,7 @@ struct Settings
 	unsigned int outputSize = 0;
 	unsigned int batchCount = 0;
 	unsigned int batchSize = 0;
+	bool invert = false;
 };
 Settings g_settings;
 
@@ -354,6 +355,19 @@ void GetFromCommandLine(int argc, char** argv, int& argIndex, bool& commandLineO
 	argIndex++;
 }
 
+bool GetFromCommandLineNoArgOptional(int argc, char** argv, int& argIndex, bool& commandLineOK, bool& value, const char* label)
+{
+	if (!commandLineOK || argIndex >= argc)
+		return false;
+
+	if (_stricmp(argv[argIndex], label))
+		return false;
+
+	value = true;
+	argIndex++;
+	return true;
+}
+
 template <typename T>
 bool GetFromCommandLineOptional(int argc, char** argv, int& argIndex, bool& commandLineOK, T& value, const char* label)
 {
@@ -399,6 +413,7 @@ int main(int argc, char** argv)
 		{
 			bool advanced = false;
 			advanced |= GetFromCommandLineOptional(argc, argv, argIndex, commandLineOK, g_seed, "-seed");
+			advanced |= GetFromCommandLineNoArgOptional(argc, argv, argIndex, commandLineOK, g_settings.invert, "-invert");
 
 			if (!advanced)
 			{
@@ -428,6 +443,7 @@ int main(int argc, char** argv)
 				"Options:\n"
 				"\n"
 				"-seed        - Specify the random seed. Useful for making this deterministic.\n"
+				"-invert      - inverts the colors so that light areas get more samples, instead of dark.\n"
 				"\n"
 				"Output Files:\n"
 				"\n"
@@ -448,6 +464,7 @@ int main(int argc, char** argv)
 		"batch count: %u\n"
 		"batch size:  %u\n"
 		"output size: %u\n"
+		"invert:      %s\n"
 		"seed:        %u\n"
 		"\n",
 		g_settings.maskFileName.c_str(),
@@ -456,6 +473,7 @@ int main(int argc, char** argv)
 		g_settings.batchCount,
 		g_settings.batchSize,
 		g_settings.outputSize,
+		g_settings.invert ? "yes" : "no",
 		g_seed
 	);
 
@@ -463,7 +481,7 @@ int main(int argc, char** argv)
 
 	// Points in square, with a density map
 	{
-		DensityMap densityMap = LoadDensityMap(g_settings.maskFileName.c_str());
+		DensityMap densityMap = LoadDensityMap(g_settings.maskFileName.c_str(), g_settings.invert);
 
 		std::filesystem::path baseFileNameOut = std::filesystem::path("out") / std::filesystem::path(g_settings.maskFileName).stem();
 

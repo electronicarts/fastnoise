@@ -106,7 +106,7 @@ struct DX12
         else
         {
             IDXGIAdapter1* hardwareAdapter = nullptr;
-            GetHardwareAdapter(factory, &hardwareAdapter);
+            GetHardwareAdapter(factory, &hardwareAdapter, true);
 
             ThrowIfFailed(D3D12CreateDevice(
                 hardwareAdapter,

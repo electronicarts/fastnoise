@@ -73,7 +73,7 @@ struct DensityMap
 	std::vector<float> pixels;
 };
 
-inline DensityMap LoadDensityMap(const char* fileName)
+inline DensityMap LoadDensityMap(const char* fileName, bool invert)
 {
 	DensityMap ret;
 
@@ -89,7 +89,12 @@ inline DensityMap LoadDensityMap(const char* fileName)
 	// convert to float and store it
 	ret.pixels.resize(ret.w * ret.h);
 	for (int i = 0; i < ret.w * ret.h; ++i)
-		ret.pixels[i] = 1.0f - float(pixels[i]) / 255.0f;
+	{
+		if (invert)
+			ret.pixels[i] = float(pixels[i]) / 255.0f;
+		else
+			ret.pixels[i] = 1.0f - float(pixels[i]) / 255.0f;
+	}
 
 	// Free the loaded image
 	stbi_image_free(pixels);
