@@ -1,0 +1,11 @@
+{
+    "Title":"Filter Adapted Spatiotemporal Sampling For Real Time Rendering",
+    "Description":"The Gigi technique that was code generated to make the FAST noise generation command line utility. Not runable as is in the viewer, the command line utility calls this in a loop.",
+    "Author":"Donnelly et al",
+    "Tags":"compute,noise,utility",
+    "Technique": "fastnoise.gg",
+    "Website": "https://www.ea.com/seed/news/spatio-temporal-sampling",
+    "Screenshot":"Screenshot.png",
+    "License":"LICENSE.txt",
+    "GigiVersion":"0.99b",
+}
